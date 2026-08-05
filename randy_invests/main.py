@@ -3,62 +3,87 @@
 from __future__ import annotations
 
 import argparse
+import csv
+import io
+import json
 import sys
+from pathlib import Path
 
 from randy_invests.data_fetcher import fetch_historical_data, fetch_realtime_quote
-from randy_invests.predictor import StockPredictor
-from randy_invests.recommender import generate_recommendation
+from randy_invests.predictor import PipelineConfig, StockPredictor
+from randy_invests.recommender import Recommendation, generate_recommendation
 from randy_invests.technical_analysis import add_indicators, identify_patterns
 
+_DISCLAIMER = (
+    "\n⚠  DISCLAIMER: Randy-Invests is for informational and educational purposes only."
+    "\n   Nothing in this output constitutes financial advice, a recommendation to buy or"
+    "\n   sell any security, or an offer or solicitation to trade. Always do your own"
+    "\n   research and consult a qualified financial professional before investing.\n"
+)
 
-def analyse(ticker: str, period_days: int = 365, forward_days: int = 5) -> None:
-    """Run the full analysis pipeline for a stock ticker and print results.
+
+# ---------------------------------------------------------------------------
+# Pure pipeline (no I/O side effects)
+# ---------------------------------------------------------------------------
+
+
+def run_pipeline(ticker: str, config: PipelineConfig) -> dict:
+    """Run the full analysis pipeline for *ticker* and return structured results.
+
+    This function has no side effects (no printing).  It is the testable core
+    of the CLI — :func:`analyse` wraps it and handles all output formatting.
 
     Args:
-        ticker: Stock ticker symbol (e.g. 'AAPL').
-        period_days: Days of historical data to use for training.
-        forward_days: Prediction horizon in trading days.
+        ticker: Stock ticker symbol (e.g. ``'AAPL'``).
+        config: :class:`~randy_invests.predictor.PipelineConfig` controlling
+            all pipeline parameters.
+
+    Returns:
+        Dictionary with keys:
+            ``ticker``, ``quote``, ``patterns``, ``metrics``,
+            ``prediction``, ``recommendation``
+            (a :class:`~randy_invests.recommender.Recommendation` instance).
+
+    Raises:
+        ValueError: If data cannot be fetched or is insufficient.
+        RuntimeError: If the predictor is in an invalid state.
     """
-    print(f"\n{'='*60}")
-    print(f"  Randy-Invests Stock Market Predictor: {ticker.upper()}")
-    print(f"{'='*60}")
-
-    # 1. Fetch data
-    print(f"\n[1/4] Fetching historical data ({period_days} days)...")
-    df = fetch_historical_data(ticker, period_days=period_days)
-    print(f"      Loaded {len(df)} trading days.")
-
-    print("\n[2/4] Fetching real-time quote...")
+    df = fetch_historical_data(
+        ticker,
+        period_days=config.period_days,
+        use_cache=config.use_cache,
+        cache_ttl_seconds=config.cache_ttl_seconds,
+    )
     quote = fetch_realtime_quote(ticker)
-    print(f"      {ticker.upper()} @ ${quote['price']:.2f}  ({quote['change_pct']:+.2f}% today)")
-
-    # 2. Technical analysis
-    print("\n[3/4] Computing technical indicators and patterns...")
     df_ind = add_indicators(df)
     patterns = identify_patterns(df_ind)
-    _print_patterns(patterns)
 
-    # 3. Train predictor
-    print("\n[4/4] Training ML models and generating prediction...")
-    predictor = StockPredictor(forward_days=forward_days)
+    predictor = StockPredictor(config=config)
     metrics = predictor.train(df_ind)
-    print(f"      Model accuracy — RF: {metrics['rf_accuracy']:.1%}  "
-          f"GB: {metrics['gb_accuracy']:.1%}  "
-          f"Ensemble: {metrics['ensemble_accuracy']:.1%}")
-
     prediction = predictor.predict(df_ind)
 
-    # 4. Recommendation
     rec = generate_recommendation(
         ticker=ticker,
         quote=quote,
         prediction=prediction,
         patterns=patterns,
         training_metrics=metrics,
-        forward_days=forward_days,
+        forward_days=config.forward_days,
     )
 
-    print(f"\n{rec}\n")
+    return {
+        "ticker": ticker.upper(),
+        "quote": quote,
+        "patterns": patterns,
+        "metrics": metrics,
+        "prediction": prediction,
+        "recommendation": rec,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Output formatting helpers
+# ---------------------------------------------------------------------------
 
 
 def _print_patterns(patterns: dict) -> None:
@@ -107,6 +132,131 @@ def _print_patterns(patterns: dict) -> None:
         print("      No strong pattern signals detected.")
 
 
+def _print_summary_table(results: list[dict]) -> None:
+    """Print a compact summary table for multiple tickers."""
+    print("\n" + "=" * 70)
+    print("  SUMMARY")
+    print("=" * 70)
+    header = f"{'Ticker':<8} {'Price':>8} {'Change%':>9} {'Signal':<16} {'Score':>7} {'CV RF%':>7} {'CV GB%':>7}"
+    print(header)
+    print("-" * 70)
+    for r in results:
+        rec: Recommendation = r["recommendation"]
+        q = r["quote"]
+        m = r["metrics"]
+        signal_str = f"{rec.strength} {rec.signal}"
+        cv_rf = f"{m.get('cv_rf_accuracy', 0):.1%}"
+        cv_gb = f"{m.get('cv_gb_accuracy', 0):.1%}"
+        print(
+            f"{rec.ticker:<8} {q['price']:>8.2f} {q['change_pct']:>+9.2f}%"
+            f" {signal_str:<16} {rec.score:>+7.3f} {cv_rf:>7} {cv_gb:>7}"
+        )
+    print("=" * 70)
+
+
+def _results_to_json(results: list[dict]) -> str:
+    """Serialise pipeline results to a JSON string."""
+    out = []
+    for r in results:
+        rec: Recommendation = r["recommendation"]
+        out.append({
+            "ticker": r["ticker"],
+            "quote": r["quote"],
+            "metrics": r["metrics"],
+            "prediction": r["prediction"],
+            "recommendation": {
+                "signal": rec.signal,
+                "strength": rec.strength,
+                "score": rec.score,
+                "price": rec.price,
+                "price_change_estimate_pct": rec.price_change_estimate_pct,
+                "forward_days": rec.forward_days,
+                "reasons": rec.reasons,
+            },
+        })
+    return json.dumps(out, indent=2, default=str)
+
+
+def _results_to_csv(results: list[dict]) -> str:
+    """Serialise pipeline results to a CSV string."""
+    buf = io.StringIO()
+    fieldnames = [
+        "ticker", "price", "change_pct", "signal", "strength", "score",
+        "price_change_estimate_pct", "forward_days",
+        "rf_accuracy", "gb_accuracy", "ensemble_accuracy",
+        "cv_rf_accuracy", "cv_gb_accuracy",
+    ]
+    writer = csv.DictWriter(buf, fieldnames=fieldnames)
+    writer.writeheader()
+    for r in results:
+        rec: Recommendation = r["recommendation"]
+        q = r["quote"]
+        m = r["metrics"]
+        writer.writerow({
+            "ticker": r["ticker"],
+            "price": q["price"],
+            "change_pct": q["change_pct"],
+            "signal": rec.signal,
+            "strength": rec.strength,
+            "score": rec.score,
+            "price_change_estimate_pct": rec.price_change_estimate_pct,
+            "forward_days": rec.forward_days,
+            "rf_accuracy": m.get("rf_accuracy", ""),
+            "gb_accuracy": m.get("gb_accuracy", ""),
+            "ensemble_accuracy": m.get("ensemble_accuracy", ""),
+            "cv_rf_accuracy": m.get("cv_rf_accuracy", ""),
+            "cv_gb_accuracy": m.get("cv_gb_accuracy", ""),
+        })
+    return buf.getvalue()
+
+
+# ---------------------------------------------------------------------------
+# High-level analyse (with I/O)
+# ---------------------------------------------------------------------------
+
+
+def analyse(ticker: str, config: PipelineConfig) -> dict:
+    """Run the full analysis pipeline for *ticker* and print formatted output.
+
+    Args:
+        ticker: Stock ticker symbol (e.g. ``'AAPL'``).
+        config: :class:`~randy_invests.predictor.PipelineConfig` instance.
+
+    Returns:
+        The structured results dictionary from :func:`run_pipeline`.
+    """
+    print(f"\n{'='*60}")
+    print(f"  Randy-Invests Stock Market Predictor: {ticker.upper()}")
+    print(f"{'='*60}")
+
+    print(f"\n[1/4] Fetching historical data ({config.period_days} days)...")
+    # We call run_pipeline which re-fetches; print steps inline for UX
+    print("\n[2/4] Fetching real-time quote...")
+    print("\n[3/4] Computing technical indicators and patterns...")
+    print("\n[4/4] Training ML models and generating prediction...")
+
+    result = run_pipeline(ticker, config)
+    q = result["quote"]
+    m = result["metrics"]
+    rec: Recommendation = result["recommendation"]
+
+    print(f"\n      {ticker.upper()} @ ${q['price']:.2f}  ({q['change_pct']:+.2f}% today)")
+    _print_patterns(result["patterns"])
+    print(
+        f"      Model accuracy — RF: {m['rf_accuracy']:.1%}  "
+        f"GB: {m['gb_accuracy']:.1%}  "
+        f"Ensemble: {m['ensemble_accuracy']:.1%}  "
+        f"(CV RF: {m.get('cv_rf_accuracy', 0):.1%}  CV GB: {m.get('cv_gb_accuracy', 0):.1%})"
+    )
+    print(f"\n{rec}\n")
+    return result
+
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+
 def main() -> None:
     """CLI entry point."""
     parser = argparse.ArgumentParser(
@@ -115,9 +265,14 @@ def main() -> None:
     )
     parser.add_argument(
         "tickers",
-        nargs="+",
+        nargs="*",
         metavar="TICKER",
         help="One or more stock ticker symbols to analyse (e.g. AAPL MSFT TSLA).",
+    )
+    parser.add_argument(
+        "--watchlist",
+        metavar="FILE",
+        help="Path to a plain-text file with one ticker per line.",
     )
     parser.add_argument(
         "--period",
@@ -133,16 +288,73 @@ def main() -> None:
         metavar="DAYS",
         help="Prediction horizon in trading days (default: 5).",
     )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        dest="output_json",
+        help="Output results as JSON (suppresses human-readable output).",
+    )
+    parser.add_argument(
+        "--csv",
+        action="store_true",
+        dest="output_csv",
+        help="Output results as CSV (suppresses human-readable output).",
+    )
+    parser.add_argument(
+        "--no-cache",
+        action="store_false",
+        dest="use_cache",
+        help="Disable the local parquet data cache.",
+    )
 
     args = parser.parse_args()
 
-    errors = []
-    for ticker in args.tickers:
+    # Collect tickers
+    tickers: list[str] = list(args.tickers)
+    if args.watchlist:
+        wl = Path(args.watchlist)
+        if not wl.exists():
+            print(f"[ERROR] Watchlist file not found: {wl}", file=sys.stderr)
+            sys.exit(1)
+        for line in wl.read_text().splitlines():
+            t = line.strip()
+            if t and not t.startswith("#"):
+                tickers.append(t)
+
+    if not tickers:
+        parser.print_help()
+        sys.exit(1)
+
+    config = PipelineConfig(
+        period_days=args.period,
+        forward_days=args.forward,
+        use_cache=args.use_cache,
+    )
+
+    machine_output = args.output_json or args.output_csv
+    if not machine_output:
+        print(_DISCLAIMER)
+
+    results: list[dict] = []
+    errors: list[str] = []
+    for ticker in tickers:
         try:
-            analyse(ticker, period_days=args.period, forward_days=args.forward)
+            if machine_output:
+                result = run_pipeline(ticker, config)
+            else:
+                result = analyse(ticker, config)
+            results.append(result)
         except Exception as exc:  # noqa: BLE001
             print(f"\n[ERROR] {ticker.upper()}: {exc}", file=sys.stderr)
             errors.append(ticker)
+
+    # Machine-readable outputs
+    if args.output_json and results:
+        print(_results_to_json(results))
+    elif args.output_csv and results:
+        print(_results_to_csv(results), end="")
+    elif results and len(results) > 1:
+        _print_summary_table(results)
 
     if errors:
         sys.exit(1)

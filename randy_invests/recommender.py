@@ -94,8 +94,9 @@ def generate_recommendation(
     if patterns.get("macd_bullish_crossover"):
         score += 0.15
         reasons.append("MACD bullish crossover detected")
-    else:
-        score -= 0.05  # mild negative for no bullish momentum
+    elif patterns.get("macd_bearish_crossover"):
+        score -= 0.10
+        reasons.append("MACD bearish crossover detected")
 
     # --- Moving average crosses ---
     if patterns.get("golden_cross"):
@@ -156,8 +157,9 @@ def generate_recommendation(
     if patterns.get("vortex_bullish"):
         score += 0.04
         reasons.append("Vortex indicator bullish (VI+ > VI-)")
-    else:
+    elif not patterns.get("vortex_bullish"):
         score -= 0.02
+        reasons.append("Vortex indicator bearish (VI- > VI+)")
 
     # --- PSAR ---
     if patterns.get("psar_bullish"):

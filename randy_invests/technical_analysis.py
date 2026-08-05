@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+import logging
+
 import pandas as pd
 import ta
+
+logger = logging.getLogger(__name__)
 
 
 def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
@@ -39,25 +43,47 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         New DataFrame with all original columns plus indicator columns.
         Indicators that cannot be computed (e.g. insufficient data) are
-        silently skipped rather than raising an exception.
+        skipped and a DEBUG-level warning is emitted rather than raising.
     """
     df = df.copy()
     close = df["Close"]
     high = df["High"]
     low = df["Low"]
     volume = df["Volume"]
-    open_ = df["Open"]
 
     def _safe(fn, *args, **kwargs):
-        """Call fn(*args, **kwargs); return None Series on any error."""
+        """Call fn(*args, **kwargs); return None on any error and log a warning.
+
+        Returns:
+            The result of *fn*, or ``None`` if an exception is raised.
+        """
         try:
             return fn(*args, **kwargs)
-        except Exception:
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("Indicator computation failed for %s: %s", fn, exc)
             return None
 
     def _add(col: str, series) -> None:
+        """Add *series* to the DataFrame under *col* if it is not None.
+
+        Args:
+            col: Column name to assign.
+            series: Pandas Series (or None to skip).
+        """
         if series is not None:
             df[col] = series
+
+    def _safe_obj(cls, *args, **kwargs):
+        """Instantiate *cls* safely; return None if construction fails.
+
+        Returns:
+            An instance of *cls*, or ``None`` if an exception is raised.
+        """
+        try:
+            return cls(*args, **kwargs)
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("Indicator object construction failed for %s: %s", cls, exc)
+            return None
 
     # ── Trend ─────────────────────────────────────────────────────────────────
     _add("sma_20",  _safe(ta.trend.sma_indicator, close, window=20))
@@ -68,19 +94,22 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     _add("ema_50",  _safe(ta.trend.ema_indicator, close, window=50))
     _add("wma_20",  _safe(ta.trend.wma_indicator, close, window=20))
 
-    macd = ta.trend.MACD(close)
-    _add("macd",        _safe(macd.macd))
-    _add("macd_signal", _safe(macd.macd_signal))
-    _add("macd_diff",   _safe(macd.macd_diff))
+    macd = _safe_obj(ta.trend.MACD, close)
+    if macd is not None:
+        _add("macd",        _safe(macd.macd))
+        _add("macd_signal", _safe(macd.macd_signal))
+        _add("macd_diff",   _safe(macd.macd_diff))
 
-    adx_ind = ta.trend.ADXIndicator(high, low, close)
-    _add("adx",     _safe(adx_ind.adx))
-    _add("adx_pos", _safe(adx_ind.adx_pos))
-    _add("adx_neg", _safe(adx_ind.adx_neg))
+    adx_ind = _safe_obj(ta.trend.ADXIndicator, high, low, close)
+    if adx_ind is not None:
+        _add("adx",     _safe(adx_ind.adx))
+        _add("adx_pos", _safe(adx_ind.adx_pos))
+        _add("adx_neg", _safe(adx_ind.adx_neg))
 
-    aroon = ta.trend.AroonIndicator(high, low)
-    _add("aroon_up",   _safe(aroon.aroon_up))
-    _add("aroon_down", _safe(aroon.aroon_down))
+    aroon = _safe_obj(ta.trend.AroonIndicator, high, low)
+    if aroon is not None:
+        _add("aroon_up",   _safe(aroon.aroon_up))
+        _add("aroon_down", _safe(aroon.aroon_down))
 
     _add("cci",          _safe(ta.trend.cci, high, low, close))
     _add("dpo",          _safe(ta.trend.dpo, close))
@@ -90,21 +119,24 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     _add("kst_signal",   _safe(ta.trend.kst_sig, close))
     _add("stc",          _safe(ta.trend.stc, close))
 
-    ichimoku = ta.trend.IchimokuIndicator(high, low)
-    _add("ichimoku_conv",  _safe(ichimoku.ichimoku_conversion_line))
-    _add("ichimoku_base",  _safe(ichimoku.ichimoku_base_line))
-    _add("ichimoku_a",     _safe(ichimoku.ichimoku_a))
-    _add("ichimoku_b",     _safe(ichimoku.ichimoku_b))
+    ichimoku = _safe_obj(ta.trend.IchimokuIndicator, high, low)
+    if ichimoku is not None:
+        _add("ichimoku_conv",  _safe(ichimoku.ichimoku_conversion_line))
+        _add("ichimoku_base",  _safe(ichimoku.ichimoku_base_line))
+        _add("ichimoku_a",     _safe(ichimoku.ichimoku_a))
+        _add("ichimoku_b",     _safe(ichimoku.ichimoku_b))
 
-    psar = ta.trend.PSARIndicator(high, low, close)
-    _add("psar_up",   _safe(psar.psar_up))
-    _add("psar_down", _safe(psar.psar_down))
-    _add("psar_up_indicator",   _safe(psar.psar_up_indicator))
-    _add("psar_down_indicator", _safe(psar.psar_down_indicator))
+    psar = _safe_obj(ta.trend.PSARIndicator, high, low, close)
+    if psar is not None:
+        _add("psar_up",   _safe(psar.psar_up))
+        _add("psar_down", _safe(psar.psar_down))
+        _add("psar_up_indicator",   _safe(psar.psar_up_indicator))
+        _add("psar_down_indicator", _safe(psar.psar_down_indicator))
 
-    vortex = ta.trend.VortexIndicator(high, low, close)
-    _add("vortex_pos", _safe(vortex.vortex_indicator_pos))
-    _add("vortex_neg", _safe(vortex.vortex_indicator_neg))
+    vortex = _safe_obj(ta.trend.VortexIndicator, high, low, close)
+    if vortex is not None:
+        _add("vortex_pos", _safe(vortex.vortex_indicator_pos))
+        _add("vortex_neg", _safe(vortex.vortex_indicator_neg))
 
     # ── Momentum ──────────────────────────────────────────────────────────────
     _add("rsi",  _safe(ta.momentum.rsi, close, window=14))
@@ -115,49 +147,56 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     _add("ultimate_oscillator", _safe(ta.momentum.ultimate_oscillator, high, low, close))
     _add("awesome_oscillator",  _safe(ta.momentum.awesome_oscillator, high, low))
 
-    stoch = ta.momentum.StochasticOscillator(high, low, close)
-    _add("stoch_k", _safe(stoch.stoch))
-    _add("stoch_d", _safe(stoch.stoch_signal))
+    stoch = _safe_obj(ta.momentum.StochasticOscillator, high, low, close)
+    if stoch is not None:
+        _add("stoch_k", _safe(stoch.stoch))
+        _add("stoch_d", _safe(stoch.stoch_signal))
 
-    stochrsi = ta.momentum.StochRSIIndicator(close)
-    _add("stochrsi",   _safe(stochrsi.stochrsi))
-    _add("stochrsi_k", _safe(stochrsi.stochrsi_k))
-    _add("stochrsi_d", _safe(stochrsi.stochrsi_d))
+    stochrsi = _safe_obj(ta.momentum.StochRSIIndicator, close)
+    if stochrsi is not None:
+        _add("stochrsi",   _safe(stochrsi.stochrsi))
+        _add("stochrsi_k", _safe(stochrsi.stochrsi_k))
+        _add("stochrsi_d", _safe(stochrsi.stochrsi_d))
 
-    ppo = ta.momentum.PercentagePriceOscillator(close)
-    _add("ppo",        _safe(ppo.ppo))
-    _add("ppo_signal", _safe(ppo.ppo_signal))
-    _add("ppo_hist",   _safe(ppo.ppo_hist))
+    ppo = _safe_obj(ta.momentum.PercentagePriceOscillator, close)
+    if ppo is not None:
+        _add("ppo",        _safe(ppo.ppo))
+        _add("ppo_signal", _safe(ppo.ppo_signal))
+        _add("ppo_hist",   _safe(ppo.ppo_hist))
 
-    pvo = ta.momentum.PercentageVolumeOscillator(volume)
-    _add("pvo",        _safe(pvo.pvo))
-    _add("pvo_signal", _safe(pvo.pvo_signal))
-    _add("pvo_hist",   _safe(pvo.pvo_hist))
+    pvo = _safe_obj(ta.momentum.PercentageVolumeOscillator, volume)
+    if pvo is not None:
+        _add("pvo",        _safe(pvo.pvo))
+        _add("pvo_signal", _safe(pvo.pvo_signal))
+        _add("pvo_hist",   _safe(pvo.pvo_hist))
 
     # ── Volatility ────────────────────────────────────────────────────────────
     _add("atr",         _safe(ta.volatility.average_true_range, high, low, close, window=14))
     _add("ulcer_index", _safe(ta.volatility.ulcer_index, close))
 
-    bb = ta.volatility.BollingerBands(close, window=20, window_dev=2)
-    _add("bb_upper",  _safe(bb.bollinger_hband))
-    _add("bb_middle", _safe(bb.bollinger_mavg))
-    _add("bb_lower",  _safe(bb.bollinger_lband))
-    _add("bb_pband",  _safe(bb.bollinger_pband))
-    _add("bb_width",  _safe(bb.bollinger_wband))
+    bb = _safe_obj(ta.volatility.BollingerBands, close, window=20, window_dev=2)
+    if bb is not None:
+        _add("bb_upper",  _safe(bb.bollinger_hband))
+        _add("bb_middle", _safe(bb.bollinger_mavg))
+        _add("bb_lower",  _safe(bb.bollinger_lband))
+        _add("bb_pband",  _safe(bb.bollinger_pband))
+        _add("bb_width",  _safe(bb.bollinger_wband))
 
-    dc = ta.volatility.DonchianChannel(high, low, close)
-    _add("dc_upper", _safe(dc.donchian_channel_hband))
-    _add("dc_mid",   _safe(dc.donchian_channel_mband))
-    _add("dc_lower", _safe(dc.donchian_channel_lband))
-    _add("dc_pband", _safe(dc.donchian_channel_pband))
-    _add("dc_width", _safe(dc.donchian_channel_wband))
+    dc = _safe_obj(ta.volatility.DonchianChannel, high, low, close)
+    if dc is not None:
+        _add("dc_upper", _safe(dc.donchian_channel_hband))
+        _add("dc_mid",   _safe(dc.donchian_channel_mband))
+        _add("dc_lower", _safe(dc.donchian_channel_lband))
+        _add("dc_pband", _safe(dc.donchian_channel_pband))
+        _add("dc_width", _safe(dc.donchian_channel_wband))
 
-    kc = ta.volatility.KeltnerChannel(high, low, close)
-    _add("kc_upper", _safe(kc.keltner_channel_hband))
-    _add("kc_mid",   _safe(kc.keltner_channel_mband))
-    _add("kc_lower", _safe(kc.keltner_channel_lband))
-    _add("kc_pband", _safe(kc.keltner_channel_pband))
-    _add("kc_width", _safe(kc.keltner_channel_wband))
+    kc = _safe_obj(ta.volatility.KeltnerChannel, high, low, close)
+    if kc is not None:
+        _add("kc_upper", _safe(kc.keltner_channel_hband))
+        _add("kc_mid",   _safe(kc.keltner_channel_mband))
+        _add("kc_lower", _safe(kc.keltner_channel_lband))
+        _add("kc_pband", _safe(kc.keltner_channel_pband))
+        _add("kc_width", _safe(kc.keltner_channel_wband))
 
     # ── Volume ────────────────────────────────────────────────────────────────
     _add("obv",             _safe(ta.volume.on_balance_volume, close, volume))

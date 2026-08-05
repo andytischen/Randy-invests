@@ -1,5 +1,14 @@
 # Randy-Invests
 
+[![CI](https://github.com/andytischen/Randy-invests/actions/workflows/ci.yml/badge.svg)](https://github.com/andytischen/Randy-invests/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+> ⚠ **Disclaimer**: Randy-Invests is for informational and educational purposes only.
+> Nothing in this output constitutes financial advice, a recommendation to buy or sell any security,
+> or an offer or solicitation to trade. Always do your own research and consult a qualified financial
+> professional before investing.
+
 A comprehensive **ML-powered stock market predictor** with buy/sell recommendations, real-time market data, and historical pattern analysis.
 
 ## Features
@@ -17,7 +26,13 @@ A comprehensive **ML-powered stock market predictor** with buy/sell recommendati
 ## Installation
 
 ```bash
-pip install -r requirements.txt
+pip install -e ".[dev]" pyarrow
+```
+
+Or just install runtime dependencies:
+
+```bash
+pip install -r requirements.txt pyarrow
 ```
 
 ## Usage
@@ -28,6 +43,16 @@ python -m randy_invests.main AAPL MSFT TSLA
 
 # Customise the historical window and prediction horizon
 python -m randy_invests.main NVDA --period 730 --forward 10
+
+# Read tickers from a watchlist file (one per line)
+python -m randy_invests.main --watchlist my_stocks.txt
+
+# Output as JSON or CSV (useful for scripting)
+python -m randy_invests.main AAPL MSFT --json
+python -m randy_invests.main AAPL MSFT --csv
+
+# Disable local data cache (always fetch fresh data)
+python -m randy_invests.main AAPL --no-cache
 ```
 
 ### Example Output
@@ -66,13 +91,17 @@ Reasons  :
 
 ```
 randy_invests/
-├── data_fetcher.py        # Real-time & historical data via yfinance
+├── data_fetcher.py        # Real-time & historical data via yfinance (with caching)
 ├── technical_analysis.py  # Technical indicators & pattern detection
-├── predictor.py           # ML ensemble (Random Forest + Gradient Boosting)
+├── predictor.py           # ML ensemble + PipelineConfig dataclass
 ├── recommender.py         # Buy/sell/hold recommendation engine
-├── main.py                # CLI entry point
+├── main.py                # CLI entry point (run_pipeline + analyse)
 └── tests/
-    └── test_predictor.py  # Unit tests
+    ├── test_data_fetcher.py      # Data fetcher tests (mocked yfinance)
+    ├── test_technical_analysis.py
+    ├── test_predictor.py
+    ├── test_recommender.py
+    └── test_main.py              # run_pipeline + output formatter tests
 ```
 
 ## Running Tests
