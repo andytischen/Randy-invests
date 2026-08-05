@@ -64,20 +64,45 @@ def analyse(ticker: str, period_days: int = 365, forward_days: int = 5) -> None:
 def _print_patterns(patterns: dict) -> None:
     """Print a compact summary of detected patterns."""
     labels = {
-        "golden_cross": "Golden Cross",
-        "death_cross": "Death Cross",
-        "macd_bullish_crossover": "MACD Bullish Crossover",
-        "price_above_sma20": "Above SMA-20",
-        "price_above_sma50": "Above SMA-50",
-        "rsi_overbought": "RSI Overbought (>70)",
-        "rsi_oversold": "RSI Oversold (<30)",
-        "bollinger_squeeze": "Bollinger Squeeze",
+        "golden_cross":            "Golden Cross (SMA-20 > SMA-50)",
+        "death_cross":             "Death Cross (SMA-20 < SMA-50)",
+        "macd_bullish_crossover":  "MACD Bullish Crossover",
+        "macd_bearish_crossover":  "MACD Bearish Crossover",
+        "price_above_sma20":       "Above SMA-20",
+        "price_above_sma50":       "Above SMA-50",
+        "price_above_sma200":      "Above SMA-200",
+        "rsi_overbought":          "RSI Overbought (>70)",
+        "rsi_oversold":            "RSI Oversold (<30)",
+        "stoch_overbought":        "Stochastic Overbought (>80)",
+        "stoch_oversold":          "Stochastic Oversold (<20)",
+        "williams_r_overbought":   "Williams %R Overbought (>-20)",
+        "williams_r_oversold":     "Williams %R Oversold (<-80)",
+        "cci_overbought":          "CCI Overbought (>100)",
+        "cci_oversold":            "CCI Oversold (<-100)",
+        "bollinger_squeeze":       "Bollinger Band Squeeze",
+        "bb_above_upper":          "Price Above BB Upper Band",
+        "bb_below_lower":          "Price Below BB Lower Band",
+        "kc_above_upper":          "Price Above Keltner Upper Band",
+        "kc_below_lower":          "Price Below Keltner Lower Band",
+        "dc_breakout_up":          "Donchian Breakout Up (new 20-day high)",
+        "dc_breakout_down":        "Donchian Breakout Down (new 20-day low)",
+        "strong_trend":            "Strong Trend (ADX > 25)",
+        "weak_trend":              "Weak Trend (ADX < 20)",
+        "adx_bullish":             "ADX Bullish (+DI > -DI)",
+        "vortex_bullish":          "Vortex Bullish (VI+ > VI-)",
+        "psar_bullish":            "Parabolic SAR Bullish",
+        "psar_bearish":            "Parabolic SAR Bearish",
+        "aroon_bullish":           "Aroon Bullish",
+        "aroon_bearish":           "Aroon Bearish",
+        "mfi_overbought":          "MFI Overbought (>80)",
+        "mfi_oversold":            "MFI Oversold (<20)",
     }
     active = [label for key, label in labels.items() if patterns.get(key)]
     trend = patterns.get("recent_trend", "neutral")
     print(f"      Recent trend: {trend.upper()}")
     if active:
-        print(f"      Active signals: {', '.join(active)}")
+        for label in active:
+            print(f"      ✓ {label}")
     else:
         print("      No strong pattern signals detected.")
 

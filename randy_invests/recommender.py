@@ -136,6 +136,84 @@ def generate_recommendation(
     # --- Bollinger squeeze (neutral note) ---
     if patterns.get("bollinger_squeeze"):
         reasons.append("Bollinger Band squeeze detected — potential breakout imminent")
+    if patterns.get("bb_above_upper"):
+        score -= 0.05
+        reasons.append("Price above Bollinger upper band — overbought territory")
+    elif patterns.get("bb_below_lower"):
+        score += 0.05
+        reasons.append("Price below Bollinger lower band — oversold territory")
+
+    # --- ADX (trend strength) ---
+    if patterns.get("strong_trend"):
+        if patterns.get("adx_bullish"):
+            score += 0.05
+            reasons.append("ADX > 25: strong bullish trend (+DI > -DI)")
+        else:
+            score -= 0.05
+            reasons.append("ADX > 25: strong bearish trend (-DI > +DI)")
+
+    # --- Vortex ---
+    if patterns.get("vortex_bullish"):
+        score += 0.04
+        reasons.append("Vortex indicator bullish (VI+ > VI-)")
+    else:
+        score -= 0.02
+
+    # --- PSAR ---
+    if patterns.get("psar_bullish"):
+        score += 0.04
+        reasons.append("Parabolic SAR in uptrend")
+    elif patterns.get("psar_bearish"):
+        score -= 0.04
+        reasons.append("Parabolic SAR in downtrend")
+
+    # --- Stochastic ---
+    if patterns.get("stoch_oversold"):
+        score += 0.04
+        reasons.append("Stochastic < 20: oversold")
+    elif patterns.get("stoch_overbought"):
+        score -= 0.04
+        reasons.append("Stochastic > 80: overbought")
+
+    # --- Williams %R ---
+    if patterns.get("williams_r_oversold"):
+        score += 0.04
+        reasons.append("Williams %R < -80: oversold")
+    elif patterns.get("williams_r_overbought"):
+        score -= 0.04
+        reasons.append("Williams %R > -20: overbought")
+
+    # --- CCI ---
+    if patterns.get("cci_oversold"):
+        score += 0.03
+        reasons.append("CCI < -100: oversold")
+    elif patterns.get("cci_overbought"):
+        score -= 0.03
+        reasons.append("CCI > 100: overbought")
+
+    # --- MFI ---
+    if patterns.get("mfi_oversold"):
+        score += 0.03
+        reasons.append("MFI < 20: oversold (money flowing out, potential reversal)")
+    elif patterns.get("mfi_overbought"):
+        score -= 0.03
+        reasons.append("MFI > 80: overbought (money flowing in strongly)")
+
+    # --- Aroon ---
+    if patterns.get("aroon_bullish"):
+        score += 0.03
+        reasons.append("Aroon Up > Aroon Down: bullish trend")
+    elif patterns.get("aroon_bearish"):
+        score -= 0.03
+        reasons.append("Aroon Down > Aroon Up: bearish trend")
+
+    # --- Donchian breakouts ---
+    if patterns.get("dc_breakout_up"):
+        score += 0.03
+        reasons.append("Donchian channel upper breakout: new 20-day high")
+    elif patterns.get("dc_breakout_down"):
+        score -= 0.03
+        reasons.append("Donchian channel lower breakout: new 20-day low")
 
     # Clamp score
     score = max(-1.0, min(1.0, score))

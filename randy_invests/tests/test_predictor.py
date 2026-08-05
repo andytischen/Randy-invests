@@ -49,11 +49,26 @@ class TestAddIndicators:
         df = _make_ohlcv()
         result = add_indicators(df)
         expected_cols = [
-            "sma_20", "sma_50", "ema_12", "ema_26",
+            # Trend
+            "sma_20", "sma_50", "sma_200", "ema_12", "ema_26", "ema_50", "wma_20",
             "macd", "macd_signal", "macd_diff",
-            "rsi", "stoch_k", "stoch_d",
-            "bb_upper", "bb_middle", "bb_lower", "bb_width",
-            "atr", "obv",
+            "adx", "adx_pos", "adx_neg",
+            "aroon_up", "aroon_down",
+            "cci", "trix", "kst", "vortex_pos", "vortex_neg",
+            "psar_up_indicator", "psar_down_indicator",
+            "ichimoku_conv", "ichimoku_base",
+            # Momentum
+            "rsi", "roc", "williams_r", "ultimate_oscillator", "awesome_oscillator",
+            "stoch_k", "stoch_d", "stochrsi_k", "stochrsi_d",
+            "ppo", "pvo",
+            # Volatility
+            "atr", "bb_upper", "bb_middle", "bb_lower", "bb_width", "bb_pband",
+            "dc_upper", "dc_lower", "dc_width",
+            "kc_upper", "kc_lower", "kc_width",
+            # Volume
+            "obv", "chaikin_mf", "mfi", "vpt", "force_index",
+            # Others
+            "daily_return", "daily_log_return", "cumulative_return",
         ]
         for col in expected_cols:
             assert col in result.columns, f"Missing column: {col}"
@@ -76,8 +91,22 @@ class TestIdentifyPatterns:
         df = _make_ohlcv()
         df_ind = add_indicators(df)
         result = identify_patterns(df_ind)
-        for key in ["golden_cross", "death_cross", "rsi_overbought", "rsi_oversold",
-                    "price_above_sma20", "price_above_sma50", "recent_trend"]:
+        for key in [
+            "golden_cross", "death_cross", "rsi_overbought", "rsi_oversold",
+            "price_above_sma20", "price_above_sma50", "price_above_sma200",
+            "recent_trend", "strong_trend", "adx_bullish", "vortex_bullish",
+            "macd_bullish_crossover", "macd_bearish_crossover",
+            "stoch_overbought", "stoch_oversold",
+            "williams_r_overbought", "williams_r_oversold",
+            "cci_overbought", "cci_oversold",
+            "bollinger_squeeze", "bb_above_upper", "bb_below_lower",
+            "kc_above_upper", "kc_below_lower",
+            "dc_breakout_up", "dc_breakout_down",
+            "mfi_overbought", "mfi_oversold",
+            "psar_bullish", "psar_bearish",
+            "aroon_bullish", "aroon_bearish",
+        ]:
+            assert key in result, f"Missing pattern key: {key}"
             assert key in result
 
     def test_recent_trend_valid_values(self):
@@ -90,10 +119,19 @@ class TestIdentifyPatterns:
         df = _make_ohlcv()
         df_ind = add_indicators(df)
         result = identify_patterns(df_ind)
-        for key in ["golden_cross", "death_cross", "rsi_overbought", "rsi_oversold",
-                    "price_above_sma20", "price_above_sma50", "macd_bullish_crossover",
-                    "bollinger_squeeze"]:
-            assert isinstance(result[key], bool)
+        for key in [
+            "golden_cross", "death_cross", "rsi_overbought", "rsi_oversold",
+            "price_above_sma20", "price_above_sma50", "price_above_sma200",
+            "macd_bullish_crossover", "macd_bearish_crossover",
+            "bollinger_squeeze", "strong_trend", "adx_bullish",
+            "vortex_bullish", "psar_bullish", "psar_bearish",
+            "aroon_bullish", "aroon_bearish",
+            "stoch_overbought", "stoch_oversold",
+            "williams_r_overbought", "williams_r_oversold",
+            "cci_overbought", "cci_oversold",
+            "mfi_overbought", "mfi_oversold",
+        ]:
+            assert isinstance(result[key], bool), f"{key} should be bool"
 
 
 # ---------------------------------------------------------------------------

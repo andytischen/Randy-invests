@@ -14,19 +14,33 @@ from sklearn.preprocessing import StandardScaler
 
 
 FEATURE_COLS = [
-    "rsi",
-    "macd",
-    "macd_signal",
-    "macd_diff",
-    "sma_20",
-    "sma_50",
-    "ema_12",
-    "ema_26",
-    "bb_width",
-    "atr",
-    "stoch_k",
-    "stoch_d",
-    "obv",
+    # Trend
+    "sma_20", "sma_50", "sma_200",
+    "ema_12", "ema_26", "ema_50",
+    "wma_20",
+    "macd", "macd_signal", "macd_diff",
+    "adx", "adx_pos", "adx_neg",
+    "aroon_up", "aroon_down",
+    "cci", "dpo", "trix", "kst", "kst_signal",
+    "vortex_pos", "vortex_neg",
+    "psar_up_indicator", "psar_down_indicator",
+    # Momentum
+    "rsi", "roc", "tsi", "kama",
+    "stoch_k", "stoch_d",
+    "stochrsi_k", "stochrsi_d",
+    "williams_r", "ultimate_oscillator", "awesome_oscillator",
+    "ppo", "ppo_signal", "ppo_hist",
+    "pvo", "pvo_signal", "pvo_hist",
+    # Volatility
+    "atr", "ulcer_index",
+    "bb_width", "bb_pband",
+    "dc_width", "dc_pband",
+    "kc_width", "kc_pband",
+    # Volume
+    "obv", "chaikin_mf", "mfi", "nvi", "vpt",
+    "ease_of_movement", "force_index",
+    # Returns
+    "daily_return", "daily_log_return",
 ]
 
 
