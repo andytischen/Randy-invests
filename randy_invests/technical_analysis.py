@@ -238,7 +238,7 @@ def identify_patterns(df: pd.DataFrame) -> dict:
     if clean.empty:
         return {}
 
-    last = clean.iloc[-1]
+    clean.iloc[-1]
     patterns: dict = {}
 
     def _col(name: str):

@@ -12,7 +12,6 @@ import pytest
 from randy_invests.predictor import PipelineConfig, StockPredictor
 from randy_invests.technical_analysis import add_indicators
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

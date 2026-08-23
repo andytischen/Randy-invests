@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import tempfile
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -17,7 +17,6 @@ from randy_invests.data_fetcher import (
     fetch_historical_data,
     fetch_realtime_quote,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers
