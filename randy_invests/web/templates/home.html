@@ -13,6 +13,7 @@
       </p>
       <div class="hero-actions">
         <a class="btn btn-primary" href="{{ url_for('tiers_index') }}">Compare investment tiers</a>
+        <a class="btn btn-ghost" href="{{ url_for('channel') }}">YouTube channel</a>
         <a class="btn btn-ghost" href="{{ url_for('interest_get') }}">Express interest</a>
       </div>
       <ul class="trust-row">
@@ -21,7 +22,19 @@
         <li>No payment in this demo</li>
       </ul>
     </div>
-    <aside class="hero-card" aria-label="Tier snapshot">
+    <aside class="hero-card" aria-label="Meet Randy">
+      <a class="home-randy" href="{{ url_for('about') }}">
+        <img
+          src="{{ url_for('static', filename='img/randy_invests_icon.png') }}"
+          alt="Randy Invests channel icon"
+          width="72"
+          height="72"
+        />
+        <span>
+          <strong>Randy</strong>
+          <em>Middle-class member of the investment community. Face of the YouTube desk.</em>
+        </span>
+      </a>
       <p class="hero-card-kicker">Four access levels</p>
       <ol class="hero-tier-list">
         {% for tier in tiers %}
@@ -79,15 +92,16 @@
     </div>
     <div class="split-note">
       <div>
-        <h3>Signed-in personalization (later)</h3>
+        <h3>Separate pages for the public desk</h3>
         <p>
-          There is no account system in this release. When auth lands, a retail user should see
-          the tier they already hold, a path to upgrade, and statements against the same
-          catalogue. Until then the public <a href="{{ url_for('tiers_index') }}">/tiers</a>
-          page plus an optional amount highlighter is the whole experience.
+          <a href="{{ url_for('tiers_index') }}">/tiers</a> is the product.
+          <a href="{{ url_for('channel') }}">/channel</a> is the YouTube face.
+          <a href="{{ url_for('advertise_get') }}">/advertise</a> is how clubs and newsletters
+          help. <a href="{{ url_for('learn') }}">/learn</a> is the long explainer.
+          Auth is still later — a signed-in retail user would see the tier they already hold.
         </p>
       </div>
-      <a class="btn btn-primary" href="{{ url_for('tiers_index') }}">Open the comparison</a>
+      <a class="btn btn-primary" href="{{ url_for('advertise_get') }}">Marketing playbook</a>
     </div>
   </div>
 </section>

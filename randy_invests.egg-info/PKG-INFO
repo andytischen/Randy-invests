@@ -1,3 +1,24 @@
+Metadata-Version: 2.4
+Name: randy-invests
+Version: 0.3.0
+Summary: ML-powered stock market predictor with a retail investor tiers portal
+License: MIT
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: yfinance>=0.2.28
+Requires-Dist: pandas>=2.0.0
+Requires-Dist: numpy>=1.24.0
+Requires-Dist: scikit-learn>=1.3.0
+Requires-Dist: ta>=0.10.2
+Requires-Dist: requests>=2.31.0
+Requires-Dist: joblib>=1.3.0
+Requires-Dist: pyarrow>=12.0.0
+Requires-Dist: flask>=3.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0; extra == "dev"
+Requires-Dist: ruff>=0.4.0; extra == "dev"
+
 # Randy-Invests
 
 [![CI](https://github.com/andytischen/Randy-invests/actions/workflows/ci.yml/badge.svg)](https://github.com/andytischen/Randy-invests/actions/workflows/ci.yml)
@@ -27,19 +48,12 @@ Then open:
 | --- | --- |
 | [http://127.0.0.1:5000/tiers](http://127.0.0.1:5000/tiers) | **Comparison portal** (cards + side-by-side table) |
 | [http://127.0.0.1:5000/](http://127.0.0.1:5000/) | Overview / landing |
-| [http://127.0.0.1:5000/channel](http://127.0.0.1:5000/channel) | **YouTube channel** (Randy icon, playlists, episode slate) |
-| [http://127.0.0.1:5000/advertise](http://127.0.0.1:5000/advertise) | Marketing playbook, ad snippets, partner form |
-| [http://127.0.0.1:5000/about](http://127.0.0.1:5000/about) | Meet Randy |
-| [http://127.0.0.1:5000/learn](http://127.0.0.1:5000/learn) | How the desk works |
 | [http://127.0.0.1:5000/interest](http://127.0.0.1:5000/interest) | Express-interest form |
 | `/tiers/gold` (etc.) | Single-tier notes |
-| `/youtube` | Alias for `/channel` |
 | `/portal` and `/invest` | Redirects to `/tiers` |
 | `/api/tiers` | JSON catalogue |
 
 Optional: bind another interface with `HOST=0.0.0.0 PORT=5000 python -m randy_invests.web`.
-
-The **Randy Invests** YouTube face is a generated channel icon of Randy — a middle-class member of the investment community — plus kitchen-table channel art. Both live in `randy_invests/web/static/img/`. This repo cannot open a live YouTube account; it ships the branded channel page. Point Subscribe at a real property with `YOUTUBE_CHANNEL_URL`.
 
 There is **no account system** in this release. The `/tiers` page is public. Enter an amount on that page to highlight an illustrative fit. When auth is added later, a signed-in retail user should see the tier they already hold against the same catalogue (`randy_invests/web/tiers.py`).
 

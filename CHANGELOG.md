@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] - 2026-09-06
+
+### Added
+- Separate public pages: `/about`, `/learn`, `/channel` (`/youtube`), and `/advertise`.
+- Randy Invests YouTube channel page with a middle-class investor icon, banner art, playlists, and an educational episode slate.
+- Advertising desk: retail marketing channels, ready-to-run snippets, UTM share links, media-kit downloads, and a mocked partner form.
+
 ## [0.3.0] - 2026-09-06
 
 ### Added

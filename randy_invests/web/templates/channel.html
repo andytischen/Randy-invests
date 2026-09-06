@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}YouTube · Randy Invests{% endblock %}
+{% block og_title %}Randy Invests on YouTube{% endblock %}
+{% block meta_description %}The Randy Invests YouTube channel — kitchen-table explainers on retail tiers, fees, and research. Illustrative, not financial advice.{% endblock %}
+{% block content %}
+<section class="channel-hero">
+  <div class="channel-banner-wrap">
+    <img
+      class="channel-banner"
+      src="{{ url_for('static', filename='img/randy_invests_channel_banner.png') }}"
+      alt="Kitchen-table research workspace used as the Randy Invests channel art"
+    />
+  </div>
+  <div class="container channel-identity">
+    <img
+      class="channel-avatar"
+      src="{{ url_for('static', filename='img/randy_invests_icon.png') }}"
+      alt="Randy Invests channel icon"
+      width="132"
+      height="132"
+    />
+    <div class="channel-copy">
+      <p class="eyebrow">YouTube channel</p>
+      <h1>Randy Invests</h1>
+      <p class="handle">@RandyInvests · Educational desk · Illustrative only</p>
+      <p class="lede">
+        A middle-class member of the investment community walks through tiers, fees, and
+        filings the way a household actually would. Episodes send you to
+        <a href="{{ url_for('tiers_index') }}">/tiers</a> — they do not sell a security on camera.
+      </p>
+      <div class="hero-actions">
+        {% if youtube_url %}
+        <a class="btn btn-primary" href="{{ youtube_url }}" rel="noopener noreferrer">Subscribe on YouTube</a>
+        {% else %}
+        <a class="btn btn-primary" href="{{ url_for('advertise_get') }}">Request launch updates</a>
+        {% endif %}
+        <a class="btn btn-ghost" href="{{ url_for('about') }}">Meet Randy</a>
+        <a class="btn btn-ghost" href="{{ url_for('tiers_index') }}">Compare tiers</a>
+      </div>
+      {% if not youtube_url %}
+      <p class="fineprint">
+        This is the branded channel home. Wire a live YouTube property later with the
+        <code>YOUTUBE_CHANNEL_URL</code> environment variable — the icon, banner, and episode slate are ready.
+      </p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head tight">
+      <h2>Playlists</h2>
+      <p>Three shelves. Start-here is the pin; Compare the tiers is the conversion path.</p>
+    </div>
+    <div class="steps">
+      {% for playlist in playlists %}
+      <article>
+        <span class="step-num">{{ '%02d'|format(loop.index) }}</span>
+        <h3>{{ playlist.name }}</h3>
+        <p>{{ playlist.blurb }}</p>
+        <p class="fineprint">{{ playlist.episode_count }} episode{{ 's' if playlist.episode_count != 1 else '' }} in this demo slate</p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section section-muted" aria-labelledby="episodes-heading">
+  <div class="container">
+    <div class="section-head tight">
+      <h2 id="episodes-heading">Episode slate</h2>
+      <p>Demonstration lineup for the channel. Each card points at a real page on this portal.</p>
+    </div>
+    <div class="episode-grid">
+      {% for episode in episodes %}
+      <article class="episode-card">
+        <p class="tier-label">{{ episode.playlist }} · {{ episode.duration }}</p>
+        <h3>{{ episode.title }}</h3>
+        <p>{{ episode.summary }}</p>
+        <a class="btn btn-small" href="{{ url_for(episode.cta_path) }}">{{ episode.cta_label }}</a>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

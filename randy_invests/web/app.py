@@ -7,6 +7,14 @@ from datetime import datetime, timezone
 
 from flask import Flask, abort, flash, redirect, render_template, request, session, url_for
 
+from randy_invests.web.marketing import (
+    get_ad_snippets,
+    get_episodes,
+    get_market_channels,
+    get_playlists,
+    get_share_links,
+    parse_partner_form,
+)
 from randy_invests.web.tiers import (
     comparison_matrix,
     get_tier,
@@ -32,14 +40,20 @@ def create_app(test_config: dict | None = None) -> Flask:
     if test_config:
         app.config.update(test_config)
 
-    # In-memory demo inbox. Replaced per process; never a payment ledger.
+    # In-memory demo inboxes. Replaced per process; never a payment ledger.
     app.interest_inbox = []
+    app.partner_inbox = []
+    app.config.setdefault(
+        "YOUTUBE_CHANNEL_URL",
+        os.environ.get("YOUTUBE_CHANNEL_URL", ""),
+    )
 
     @app.context_processor
     def _globals():
         return {
             "now": datetime.now(timezone.utc),
             "nav_tiers": get_tiers(),
+            "youtube_url": app.config.get("YOUTUBE_CHANNEL_URL") or "",
         }
 
     @app.get("/")
@@ -129,6 +143,61 @@ def create_app(test_config: dict | None = None) -> Flask:
             investor_name=session.get("demo_investor_name"),
             page="interest",
         )
+
+    @app.get("/about")
+    def about():
+        return render_template("about.html", page="about")
+
+    @app.get("/learn")
+    def learn():
+        return render_template("learn.html", tiers=get_tiers(), page="learn")
+
+    @app.get("/channel")
+    @app.get("/youtube")
+    def channel():
+        return render_template(
+            "channel.html",
+            episodes=get_episodes(),
+            playlists=get_playlists(),
+            page="channel",
+        )
+
+    @app.get("/advertise")
+    def advertise_get():
+        return render_template(
+            "advertise.html",
+            channels=get_market_channels(),
+            snippets=get_ad_snippets(),
+            share_links=get_share_links(),
+            form={},
+            errors=[],
+            page="advertise",
+        )
+
+    @app.post("/advertise")
+    def advertise_post():
+        inquiry = parse_partner_form(request.form)
+        if not inquiry.ok:
+            flash("Please correct the partner form.", "error")
+            return render_template(
+                "advertise.html",
+                channels=get_market_channels(),
+                snippets=get_ad_snippets(),
+                share_links=get_share_links(),
+                form=request.form,
+                errors=inquiry.errors,
+                page="advertise",
+            ), 400
+        app.partner_inbox.append(inquiry)
+        flash(
+            "Partner note received. This is a demonstration inbox — no campaign was booked.",
+            "success",
+        )
+        return redirect(url_for("advertise_thanks"))
+
+    @app.get("/advertise/thanks")
+    def advertise_thanks():
+        return render_template("advertise_thanks.html", page="advertise")
 
     @app.get("/api/tiers")
     def api_tiers():

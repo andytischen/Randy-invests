@@ -37,7 +37,7 @@ where = ["."]
 include = ["randy_invests*"]
 
 [tool.setuptools.package-data]
-"randy_invests.web" = ["templates/*.html", "static/css/*", "static/js/*"]
+"randy_invests.web" = ["templates/*.html", "static/css/*", "static/js/*", "static/img/*"]
 
 [tool.ruff]
 line-length = 100

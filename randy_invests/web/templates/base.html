@@ -6,8 +6,11 @@
     <title>{% block title %}Randy Invests{% endblock %}</title>
     <meta
       name="description"
-      content="Compare Randy Invests retail investment tiers — minimums, access, fees, and hold periods. Illustrative information only."
+      content="{% block meta_description %}Compare Randy Invests retail investment tiers — minimums, access, fees, and hold periods. Illustrative information only.{% endblock %}"
     />
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/randy_invests_icon.png') }}" />
+    <meta property="og:title" content="{% block og_title %}Randy Invests{% endblock %}" />
+    <meta property="og:image" content="{{ url_for('static', filename='img/randy_invests_icon.png', _external=True) }}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -22,7 +25,13 @@
       <header class="site-header">
         <div class="container header-inner">
           <a class="brand" href="{{ url_for('home') }}">
-            <span class="brand-mark" aria-hidden="true">RI</span>
+            <img
+              class="brand-photo"
+              src="{{ url_for('static', filename='img/randy_invests_icon.png') }}"
+              alt=""
+              width="42"
+              height="42"
+            />
             <span class="brand-text">
               <span class="brand-name">Randy Invests</span>
               <span class="brand-sub">Retail research desk</span>
@@ -30,8 +39,10 @@
           </a>
           <nav class="site-nav" aria-label="Primary">
             <a href="{{ url_for('home') }}" {% if page == 'home' %}aria-current="page"{% endif %}>Overview</a>
-            <a href="{{ url_for('tiers_index') }}" {% if page == 'tiers' %}aria-current="page"{% endif %}>Investment tiers</a>
-            <a href="{{ url_for('interest_get') }}" {% if page == 'interest' %}aria-current="page"{% endif %}>Express interest</a>
+            <a href="{{ url_for('tiers_index') }}" {% if page == 'tiers' %}aria-current="page"{% endif %}>Tiers</a>
+            <a href="{{ url_for('channel') }}" {% if page == 'channel' %}aria-current="page"{% endif %}>YouTube</a>
+            <a href="{{ url_for('advertise_get') }}" {% if page == 'advertise' %}aria-current="page"{% endif %}>Advertise</a>
+            <a href="{{ url_for('learn') }}" {% if page == 'learn' %}aria-current="page"{% endif %}>Learn</a>
           </nav>
           <a class="btn btn-header" href="{{ url_for('tiers_index') }}">Compare tiers</a>
         </div>
@@ -59,8 +70,11 @@
           <div>
             <p class="footer-label">Portal</p>
             <a href="{{ url_for('tiers_index') }}">/tiers</a>
+            <a href="{{ url_for('channel') }}">YouTube channel</a>
+            <a href="{{ url_for('advertise_get') }}">Advertise</a>
+            <a href="{{ url_for('about') }}">Meet Randy</a>
+            <a href="{{ url_for('learn') }}">Learn</a>
             <a href="{{ url_for('interest_get') }}">Express interest</a>
-            <a href="{{ url_for('api_tiers') }}">Tiers API</a>
           </div>
           <div>
             <p class="footer-label">Demo tiers</p>

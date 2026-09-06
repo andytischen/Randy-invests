@@ -92,6 +92,66 @@ def test_interest_form_round_trip(client):
     assert app.interest_inbox[0].tier_slug == "platinum"
 
 
+def test_separate_marketing_pages(client):
+    http, _app = client
+    about = http.get("/about")
+    assert about.status_code == 200
+    assert "Meet Randy" in about.get_data(as_text=True)
+    assert "middle-class" in about.get_data(as_text=True)
+
+    learn = http.get("/learn")
+    assert learn.status_code == 200
+    assert "How the desk works" in learn.get_data(as_text=True)
+
+    channel = http.get("/channel")
+    assert channel.status_code == 200
+    body = channel.get_data(as_text=True)
+    assert "@RandyInvests" in body
+    assert "kitchen table" in body.lower()
+    assert http.get("/youtube").status_code == 200
+
+    advertise = http.get("/advertise")
+    assert advertise.status_code == 200
+    ad = advertise.get_data(as_text=True)
+    assert "Ready-to-run snippets" in ad
+    assert "utm_source=youtube" in ad
+
+
+def test_partner_form_round_trip(client):
+    http, app = client
+    rejected = http.post(
+        "/advertise",
+        data={"name": "", "email": "bad", "organization": "", "channel": ""},
+    )
+    assert rejected.status_code == 400
+    assert app.partner_inbox == []
+
+    accepted = http.post(
+        "/advertise",
+        data={
+            "name": "Sam Ortiz",
+            "email": "sam@example.com",
+            "organization": "Oak Street Investment Club",
+            "channel": "investment-club",
+            "message": "Can we walk through the fee table?",
+        },
+        follow_redirects=True,
+    )
+    assert accepted.status_code == 200
+    assert "Partner note received" in accepted.get_data(as_text=True)
+    assert len(app.partner_inbox) == 1
+    assert app.partner_inbox[0].channel == "investment-club"
+
+
+def test_randy_icon_is_served(client):
+    http, _app = client
+    icon = http.get("/static/img/randy_invests_icon.png")
+    banner = http.get("/static/img/randy_invests_channel_banner.png")
+    assert icon.status_code == 200
+    assert icon.mimetype == "image/png"
+    assert banner.status_code == 200
+
+
 def test_api_tiers_json(client):
     http, _app = client
     payload = http.get("/api/tiers").get_json()
