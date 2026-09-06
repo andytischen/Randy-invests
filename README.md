@@ -13,7 +13,7 @@ A comprehensive **ML-powered stock market predictor** with buy/sell recommendati
 
 ## Retail investor portal
 
-A public web desk where retail investors can compare **Bronze / Silver / Gold / Platinum** programs — minimums, benefits, fees, hold periods, and eligibility — then express interest (payments are mocked).
+A public web desk where retail investors can compare **Bronze / Silver / Gold / Platinum** programs — minimums, benefits, fees, hold periods, and eligibility — then express interest (payments are mocked). It also lists **share recommendations structured for retail investors** (`/recommendations`): the ML model's buy/hold/sell read on each stock, restated as a plain-language stance, an illustrative estimated move, and a few de-jargoned talking points.
 
 ```bash
 # After install (see below)
@@ -26,6 +26,7 @@ Then open:
 | Route | What it is |
 | --- | --- |
 | [http://127.0.0.1:5000/tiers](http://127.0.0.1:5000/tiers) | **Comparison portal** (cards + side-by-side table) |
+| [http://127.0.0.1:5000/recommendations](http://127.0.0.1:5000/recommendations) | **Share ideas** — ML buy/hold/sell reads structured for retail investors |
 | [http://127.0.0.1:5000/](http://127.0.0.1:5000/) | Overview / landing |
 | [http://127.0.0.1:5000/channel](http://127.0.0.1:5000/channel) | **YouTube channel** (Randy icon, playlists, episode slate) |
 | [http://127.0.0.1:5000/advertise](http://127.0.0.1:5000/advertise) | Marketing playbook, ad snippets, partner form |
@@ -33,9 +34,10 @@ Then open:
 | [http://127.0.0.1:5000/learn](http://127.0.0.1:5000/learn) | How the desk works |
 | [http://127.0.0.1:5000/interest](http://127.0.0.1:5000/interest) | Express-interest form |
 | `/tiers/gold` (etc.) | Single-tier notes |
+| `/recommendations?tickers=AAPL+MSFT` | Look up your own symbols (up to 6) |
 | `/youtube` | Alias for `/channel` |
 | `/portal` and `/invest` | Redirects to `/tiers` |
-| `/api/tiers` | JSON catalogue |
+| `/api/tiers`, `/api/recommendations` | JSON catalogue / share ideas |
 
 Optional: bind another interface with `HOST=0.0.0.0 PORT=5000 python -m randy_invests.web`.
 
@@ -56,7 +58,7 @@ Tier figures are **seeded demo data**, not a live offering. Footer copy is conse
 - **Pattern Detection** — Automatically identifies Golden Cross, Death Cross, MACD crossovers, Bollinger squeezes, and more.
 - **Machine Learning Predictions** — Ensemble of Random Forest + Gradient Boosting classifiers trained on technical indicators to predict the price direction over a configurable time horizon.
 - **Buy/Sell Recommendations** — Composite scoring engine combines ML predictions, technical signals, and real-time performance to produce `BUY / SELL / HOLD` recommendations with strength ratings.
-- **Retail investor portal** — Flask app at `/tiers` comparing Bronze, Silver, Gold, and Platinum access programs.
+- **Retail investor portal** — Flask app at `/tiers` comparing Bronze, Silver, Gold, and Platinum access programs, plus `/recommendations` presenting share recommendations structured for retail investors.
 
 ## Installation
 
@@ -132,8 +134,9 @@ randy_invests/
 ├── recommender.py         # Buy/sell/hold recommendation engine
 ├── main.py                # CLI entry point (run_pipeline + analyse)
 ├── web/                   # Retail investor portal (Flask)
-│   ├── app.py             # Routes: /, /tiers, /interest, /api/tiers
+│   ├── app.py             # Routes: /, /tiers, /recommendations, /interest, /api/*
 │   ├── tiers.py           # Seeded Bronze–Platinum catalogue
+│   ├── recommendations.py # Retail-structured share recommendations (wraps run_pipeline)
 │   ├── templates/         # Jinja pages
 │   └── static/            # Portal CSS / JS
 └── tests/
@@ -143,6 +146,7 @@ randy_invests/
     ├── test_recommender.py
     ├── test_main.py              # run_pipeline + output formatter tests
     ├── test_tiers.py             # Catalogue + interest-form validation
+    ├── test_recommendations.py   # Retail share-recommendation structuring
     └── test_web.py               # Portal HTTP tests
 ```
 

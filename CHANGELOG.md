@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2026-09-06
+
+### Added
+- **Share recommendations structured for retail investors** in the portal at `/recommendations`.
+  - `randy_invests/web/recommendations.py` adapts the ML pipeline's `BUY / SELL / HOLD` output into
+    a plain-language stance, an illustrative estimated move, a confidence level, and a few
+    de-jargoned talking points — always labelled illustrative, never advice.
+  - New routes `/recommendations` (with an optional `?tickers=` lookup, up to six symbols) and
+    `/api/recommendations` (JSON). "Share ideas" added to the portal nav, home page, and footer.
+  - Dependency-injected pipeline runner, in-memory per-ticker caching with a TTL, and graceful
+    per-symbol fallback so a data outage degrades to an "unavailable" card instead of a 500.
+- `test_recommendations.py` plus new portal HTTP tests covering the pages and JSON API (offline via
+  an injected runner).
+
 ## [0.3.1] - 2026-09-06
 
 ### Added

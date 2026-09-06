@@ -4,12 +4,51 @@ from __future__ import annotations
 
 import pytest
 
+from randy_invests.recommender import Recommendation
 from randy_invests.web.app import create_app
+
+
+def _fake_runner(ticker, config):
+    """Offline stand-in for run_pipeline used by portal recommendation tests."""
+    rec = Recommendation(
+        ticker=ticker,
+        signal="BUY",
+        strength="MODERATE",
+        score=0.42,
+        reasons=["ML ensemble predicts UP with MEDIUM confidence"],
+        price=100.0,
+        price_change_estimate_pct=1.5,
+        forward_days=5,
+    )
+    return {
+        "ticker": ticker,
+        "quote": {"price": 100.0, "change_pct": 0.5},
+        "patterns": {
+            "recent_trend": "bullish",
+            "price_above_sma20": True,
+            "price_above_sma50": True,
+        },
+        "prediction": {
+            "predicted_direction": "UP",
+            "confidence": "MEDIUM",
+            "direction_probability": 0.62,
+            "price_change_estimate_pct": 1.5,
+        },
+        "metrics": {"ensemble_accuracy": 0.55},
+        "recommendation": rec,
+    }
 
 
 @pytest.fixture
 def client():
-    app = create_app({"TESTING": True, "SECRET_KEY": "test"})
+    app = create_app(
+        {
+            "TESTING": True,
+            "SECRET_KEY": "test",
+            "RECOMMENDATION_RUNNER": _fake_runner,
+            "RECOMMENDATION_TICKERS": ["AAPL", "MSFT"],
+        }
+    )
     with app.test_client() as client:
         yield client, app
 
@@ -153,6 +192,41 @@ def test_randy_icon_is_served(client):
     assert icon.status_code == 200
     assert icon.mimetype == "image/png"
     assert banner.status_code == 200
+
+
+def test_recommendations_page_renders_retail_cards(client):
+    http, _app = client
+    page = http.get("/recommendations").get_data(as_text=True)
+    assert "Share recommendations, in plain language." in page
+    assert "AAPL" in page and "MSFT" in page
+    # Retail framing and stance, not raw indicator jargon.
+    assert "buy candidate" in page.lower()
+    assert "not investment advice" in page.lower()
+
+
+def test_recommendations_custom_ticker_query(client):
+    http, _app = client
+    page = http.get("/recommendations?tickers=tsla goog").get_data(as_text=True)
+    assert "TSLA" in page
+    assert "GOOG" in page
+
+
+def test_api_recommendations_json(client):
+    http, _app = client
+    payload = http.get("/api/recommendations").get_json()
+    slugs = [row["ticker"] for row in payload["recommendations"]]
+    assert slugs == ["AAPL", "MSFT"]
+    first = payload["recommendations"][0]
+    assert first["action"] == "Buy"
+    assert first["tone"] == "positive"
+    assert isinstance(first["key_points"], list)
+
+
+def test_nav_links_to_share_ideas(client):
+    http, _app = client
+    page = http.get("/").get_data(as_text=True)
+    assert 'href="/recommendations"' in page
+    assert "Share ideas" in page
 
 
 def test_api_tiers_json(client):
