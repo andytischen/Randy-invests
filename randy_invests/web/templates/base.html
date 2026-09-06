@@ -40,6 +40,7 @@
           <nav class="site-nav" aria-label="Primary">
             <a href="{{ url_for('home') }}" {% if page == 'home' %}aria-current="page"{% endif %}>Overview</a>
             <a href="{{ url_for('tiers_index') }}" {% if page == 'tiers' %}aria-current="page"{% endif %}>Tiers</a>
+            <a href="{{ url_for('recommendations_index') }}" {% if page == 'recommendations' %}aria-current="page"{% endif %}>Share ideas</a>
             <a href="{{ url_for('channel') }}" {% if page == 'channel' %}aria-current="page"{% endif %}>YouTube</a>
             <a href="{{ url_for('advertise_get') }}" {% if page == 'advertise' %}aria-current="page"{% endif %}>Advertise</a>
             <a href="{{ url_for('learn') }}" {% if page == 'learn' %}aria-current="page"{% endif %}>Learn</a>
@@ -70,6 +71,7 @@
           <div>
             <p class="footer-label">Portal</p>
             <a href="{{ url_for('tiers_index') }}">/tiers</a>
+            <a href="{{ url_for('recommendations_index') }}">Share ideas</a>
             <a href="{{ url_for('channel') }}">YouTube channel</a>
             <a href="{{ url_for('advertise_get') }}">Advertise</a>
             <a href="{{ url_for('about') }}">Meet Randy</a>
