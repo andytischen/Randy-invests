@@ -13,8 +13,8 @@
       </p>
       <div class="hero-actions">
         <a class="btn btn-primary" href="{{ url_for('tiers_index') }}">Compare investment tiers</a>
+        <a class="btn btn-ghost" href="{{ url_for('recommendations_index') }}">See share ideas</a>
         <a class="btn btn-ghost" href="{{ url_for('channel') }}">YouTube channel</a>
-        <a class="btn btn-ghost" href="{{ url_for('interest_get') }}">Express interest</a>
       </div>
       <ul class="trust-row">
         <li>Illustrative figures</li>
@@ -85,23 +85,24 @@
     <div class="section-head">
       <h2>Built next to the research engine</h2>
       <p>
-        Randy Invests already ships a CLI that fetches market data, scores technical patterns,
-        and trains an ML ensemble. This portal is the retail front door — access tiers, not a
-        replacement for the model output.
+        Randy Invests ships a CLI that fetches market data, scores technical patterns,
+        and trains an ML ensemble. The portal surfaces that same output as plain-language
+        <a href="{{ url_for('recommendations_index') }}">share ideas</a> alongside the access tiers.
       </p>
     </div>
     <div class="split-note">
       <div>
         <h3>Separate pages for the public desk</h3>
         <p>
-          <a href="{{ url_for('tiers_index') }}">/tiers</a> is the product.
-          <a href="{{ url_for('channel') }}">/channel</a> is the YouTube face.
+          <a href="{{ url_for('tiers_index') }}">/tiers</a> is the product and
+          <a href="{{ url_for('recommendations_index') }}">/recommendations</a> lists share ideas
+          structured for retail. <a href="{{ url_for('channel') }}">/channel</a> is the YouTube face.
           <a href="{{ url_for('advertise_get') }}">/advertise</a> is how clubs and newsletters
           help. <a href="{{ url_for('learn') }}">/learn</a> is the long explainer.
           Auth is still later — a signed-in retail user would see the tier they already hold.
         </p>
       </div>
-      <a class="btn btn-primary" href="{{ url_for('advertise_get') }}">Marketing playbook</a>
+      <a class="btn btn-primary" href="{{ url_for('recommendations_index') }}">See share ideas</a>
     </div>
   </div>
 </section>

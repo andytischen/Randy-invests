@@ -857,12 +857,116 @@ h2 {
   border: 0;
 }
 
+/* Share recommendation cards */
+.reco-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+  align-items: stretch;
+}
+
+.reco-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.3rem 1.3rem 1.35rem;
+  display: flex;
+  flex-direction: column;
+  border-top: 5px solid var(--accent, var(--silver));
+}
+
+.reco-positive { --accent: #1f7a52; }
+.reco-negative { --accent: #a53a3a; }
+.reco-neutral { --accent: #6f7c8b; }
+.reco-unavailable { opacity: 0.75; }
+
+.reco-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+.reco-ticker {
+  font-family: var(--serif);
+  font-size: 1.7rem;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.reco-price {
+  margin: 0.1rem 0 0;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.reco-badge {
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: var(--accent, var(--silver));
+  white-space: nowrap;
+}
+
+.reco-stance {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  margin: 0 0 0.5rem;
+}
+
+.reco-summary {
+  color: var(--ink-soft);
+  margin: 0 0 1rem;
+  font-size: 0.96rem;
+}
+
+.reco-facts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+}
+
+.reco-facts div {
+  background: var(--paper);
+  border-radius: 12px;
+  padding: 0.55rem 0.6rem;
+  text-align: center;
+}
+
+.reco-facts dt {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+
+.reco-facts dd {
+  margin: 0.2rem 0 0;
+  font-weight: 700;
+}
+
+.reco-card .card-actions {
+  margin-top: auto;
+}
+
+.reco-foot {
+  margin-top: 1.6rem;
+  max-width: 920px;
+}
+
 @media (max-width: 1080px) {
   .tier-grid,
   .hero-grid,
   .steps,
   .detail-grid,
-  .footer-grid {
+  .footer-grid,
+  .reco-grid {
     grid-template-columns: 1fr 1fr;
   }
 }
@@ -894,7 +998,8 @@ h2 {
   .steps,
   .detail-grid,
   .footer-grid,
-  .split-note {
+  .split-note,
+  .reco-grid {
     grid-template-columns: 1fr;
   }
 

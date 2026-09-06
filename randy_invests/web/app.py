@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 
 from flask import Flask, abort, flash, redirect, render_template, request, session, url_for
 
+from randy_invests.predictor import PipelineConfig
 from randy_invests.web.marketing import (
     get_ad_snippets,
     get_episodes,
@@ -14,6 +15,13 @@ from randy_invests.web.marketing import (
     get_playlists,
     get_share_links,
     parse_partner_form,
+)
+from randy_invests.web.recommendations import (
+    DEFAULT_PERIOD_DAYS,
+    DEFAULT_TICKERS,
+    DEFAULT_TTL_SECONDS,
+    get_retail_recommendations,
+    normalize_tickers,
 )
 from randy_invests.web.tiers import (
     comparison_matrix,
@@ -37,6 +45,10 @@ def create_app(test_config: dict | None = None) -> Flask:
         SECRET_KEY=os.environ.get("RANDY_INVESTS_SECRET", DEFAULT_SECRET),
         TEMPLATES_AUTO_RELOAD=True,
     )
+    app.config.setdefault("RECOMMENDATION_TICKERS", list(DEFAULT_TICKERS))
+    app.config.setdefault("RECOMMENDATION_RUNNER", None)
+    app.config.setdefault("RECOMMENDATION_PERIOD_DAYS", DEFAULT_PERIOD_DAYS)
+    app.config.setdefault("RECOMMENDATION_TTL", DEFAULT_TTL_SECONDS)
     if test_config:
         app.config.update(test_config)
 
@@ -47,6 +59,18 @@ def create_app(test_config: dict | None = None) -> Flask:
         "YOUTUBE_CHANNEL_URL",
         os.environ.get("YOUTUBE_CHANNEL_URL", ""),
     )
+    # In-memory cache of computed recommendations, keyed by upper-cased ticker.
+    app.recommendation_cache = {}
+
+    def _load_recommendations(tickers):
+        config = PipelineConfig(period_days=app.config["RECOMMENDATION_PERIOD_DAYS"])
+        return get_retail_recommendations(
+            tickers,
+            runner=app.config["RECOMMENDATION_RUNNER"],
+            config=config,
+            cache=app.recommendation_cache,
+            ttl=app.config["RECOMMENDATION_TTL"],
+        )
 
     @app.context_processor
     def _globals():
@@ -198,6 +222,28 @@ def create_app(test_config: dict | None = None) -> Flask:
     @app.get("/advertise/thanks")
     def advertise_thanks():
         return render_template("advertise_thanks.html", page="advertise")
+
+    @app.get("/recommendations")
+    def recommendations_index():
+        default_tickers = app.config["RECOMMENDATION_TICKERS"]
+        requested = normalize_tickers(request.args.get("tickers") or "")
+        tickers = requested or default_tickers
+        recommendations = _load_recommendations(tickers)
+        return render_template(
+            "recommendations.html",
+            recommendations=recommendations,
+            tickers=tickers,
+            default_tickers=default_tickers,
+            is_custom=bool(requested),
+            page="recommendations",
+        )
+
+    @app.get("/api/recommendations")
+    def api_recommendations():
+        requested = normalize_tickers(request.args.get("tickers") or "")
+        tickers = requested or app.config["RECOMMENDATION_TICKERS"]
+        recommendations = _load_recommendations(tickers)
+        return {"recommendations": [rec.as_dict() for rec in recommendations]}
 
     @app.get("/api/tiers")
     def api_tiers():
