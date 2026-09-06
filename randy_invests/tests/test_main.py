@@ -3,21 +3,19 @@
 from __future__ import annotations
 
 import json
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
-import pytest
 
 from randy_invests.main import (
+    _print_summary_table,
     _results_to_csv,
     _results_to_json,
-    _print_summary_table,
     run_pipeline,
 )
 from randy_invests.predictor import PipelineConfig
 from randy_invests.recommender import Recommendation
-
 
 # ---------------------------------------------------------------------------
 # Helpers

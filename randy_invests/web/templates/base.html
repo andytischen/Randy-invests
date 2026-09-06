@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Randy Invests{% endblock %}</title>
+    <meta
+      name="description"
+      content="{% block meta_description %}Compare Randy Invests retail investment tiers — minimums, access, fees, and hold periods. Illustrative information only.{% endblock %}"
+    />
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/randy_invests_icon.png') }}" />
+    <meta property="og:title" content="{% block og_title %}Randy Invests{% endblock %}" />
+    <meta property="og:image" content="{{ url_for('static', filename='img/randy_invests_icon.png', _external=True) }}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,620;9..144,700&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="page-shell">
+      <header class="site-header">
+        <div class="container header-inner">
+          <a class="brand" href="{{ url_for('home') }}">
+            <img
+              class="brand-photo"
+              src="{{ url_for('static', filename='img/randy_invests_icon.png') }}"
+              alt=""
+              width="42"
+              height="42"
+            />
+            <span class="brand-text">
+              <span class="brand-name">Randy Invests</span>
+              <span class="brand-sub">Retail research desk</span>
+            </span>
+          </a>
+          <nav class="site-nav" aria-label="Primary">
+            <a href="{{ url_for('home') }}" {% if page == 'home' %}aria-current="page"{% endif %}>Overview</a>
+            <a href="{{ url_for('tiers_index') }}" {% if page == 'tiers' %}aria-current="page"{% endif %}>Tiers</a>
+            <a href="{{ url_for('channel') }}" {% if page == 'channel' %}aria-current="page"{% endif %}>YouTube</a>
+            <a href="{{ url_for('advertise_get') }}" {% if page == 'advertise' %}aria-current="page"{% endif %}>Advertise</a>
+            <a href="{{ url_for('learn') }}" {% if page == 'learn' %}aria-current="page"{% endif %}>Learn</a>
+          </nav>
+          <a class="btn btn-header" href="{{ url_for('tiers_index') }}">Compare tiers</a>
+        </div>
+      </header>
+
+      <main id="main">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="container flash-wrap" role="status">
+              {% for category, message in messages %}
+                <p class="flash flash-{{ category }}">{{ message }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+      </main>
+
+      <footer class="site-footer">
+        <div class="container footer-grid">
+          <div>
+            <p class="footer-brand">Randy Invests</p>
+            <p class="footer-muted">Illustrative retail access tiers for a research-backed investing program. Not a broker-dealer. Not an RIA advertisement.</p>
+          </div>
+          <div>
+            <p class="footer-label">Portal</p>
+            <a href="{{ url_for('tiers_index') }}">/tiers</a>
+            <a href="{{ url_for('channel') }}">YouTube channel</a>
+            <a href="{{ url_for('advertise_get') }}">Advertise</a>
+            <a href="{{ url_for('about') }}">Meet Randy</a>
+            <a href="{{ url_for('learn') }}">Learn</a>
+            <a href="{{ url_for('interest_get') }}">Express interest</a>
+          </div>
+          <div>
+            <p class="footer-label">Demo tiers</p>
+            {% for tier in nav_tiers %}
+              <a href="{{ url_for('tier_detail', slug=tier.slug) }}">{{ tier.name }} · {{ tier.format_minimum() }}</a>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="container">
+          <p class="compliance">
+            Illustrative information only — not financial, legal, or tax advice, and not an offer,
+            solicitation, or recommendation to buy or sell any security or to open an account.
+            Minimums, fees, hold periods, and benefits shown here are demonstration figures for this
+            portal and may change. Securities involve risk, including loss of principal. Past
+            performance of any research signal is not indicative of future results. Always do your
+            own research and consult a qualified professional before investing.
+          </p>
+          <p class="copyright">© {{ now.year }} Randy Invests · Demo portal</p>
+        </div>
+      </footer>
+    </div>
+    <script src="{{ url_for('static', filename='js/portal.js') }}" defer></script>
+  </body>
+</html>

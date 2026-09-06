@@ -1,11 +1,11 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "randy-invests"
-version = "0.2.0"
-description = "ML-powered stock market predictor with buy/sell recommendations"
+version = "0.3.0"
+description = "ML-powered stock market predictor with a retail investor tiers portal"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.9"
@@ -18,6 +18,7 @@ dependencies = [
     "requests>=2.31.0",
     "joblib>=1.3.0",
     "pyarrow>=12.0.0",
+    "flask>=3.0.0",
 ]
 
 [project.optional-dependencies]
@@ -29,10 +30,14 @@ dev = [
 
 [project.scripts]
 randy-invests = "randy_invests.main:main"
+randy-invests-portal = "randy_invests.web.app:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["randy_invests*"]
+
+[tool.setuptools.package-data]
+"randy_invests.web" = ["templates/*.html", "static/css/*", "static/js/*", "static/img/*"]
 
 [tool.ruff]
 line-length = 100

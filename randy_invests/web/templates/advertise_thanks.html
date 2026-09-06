@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Partner note received · Randy Invests{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="container narrow">
+    <p class="eyebrow">Demonstration inbox</p>
+    <h1>Partner note received.</h1>
+    <p class="lede">
+      Nothing was booked and no media was purchased. When a live desk exists, this is
+      where a conversation about clubs, newsletters, or YouTube collaborations would start.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="{{ url_for('advertise_get') }}">Back to advertise</a>
+      <a class="btn btn-ghost" href="{{ url_for('channel') }}">YouTube channel</a>
+    </div>
+  </div>
+</section>
+{% endblock %}
