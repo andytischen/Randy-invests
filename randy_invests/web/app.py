@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import os
 from datetime import datetime, timezone
-from typing import Optional
 
 from flask import Flask, abort, flash, redirect, render_template, request, session, url_for
 
@@ -19,7 +18,7 @@ from randy_invests.web.tiers import (
 DEFAULT_SECRET = "randy-invests-portal-demo-only"
 
 
-def create_app(test_config: Optional[dict] = None) -> Flask:
+def create_app(test_config: dict | None = None) -> Flask:
     """Application factory used by tests and ``python -m randy_invests.web``."""
     app = Flask(
         __name__,

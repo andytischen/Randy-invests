@@ -6,7 +6,6 @@ The figures below are hardcoded demonstration data — not a live offering.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 
 @dataclass(frozen=True)
@@ -193,7 +192,7 @@ def get_tiers() -> tuple[InvestmentTier, ...]:
     return TIERS
 
 
-def get_tier(slug: str) -> Optional[InvestmentTier]:
+def get_tier(slug: str) -> InvestmentTier | None:
     """Look up a tier by URL slug, or ``None`` if unknown."""
     return _TIERS_BY_SLUG.get((slug or "").strip().lower())
 
@@ -271,7 +270,7 @@ class InterestInquiry:
     name: str
     email: str
     tier_slug: str
-    intended_amount: Optional[int] = None
+    intended_amount: int | None = None
     message: str = ""
     errors: list[str] = field(default_factory=list)
 
@@ -298,7 +297,7 @@ def parse_interest_form(form: dict) -> InterestInquiry:
     if len(message) > 1000:
         errors.append("Notes must be 1,000 characters or fewer.")
 
-    intended_amount: Optional[int] = None
+    intended_amount: int | None = None
     if raw_amount:
         try:
             intended_amount = int(float(raw_amount))
