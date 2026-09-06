@@ -1,3 +1,0 @@
-[console_scripts]
-randy-invests = randy_invests.main:main
-randy-invests-portal = randy_invests.web.app:main
