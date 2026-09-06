@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2026-09-06
+
+### Added
+- Retail investor web portal (`python -m randy_invests.web`) with public routes `/`, `/tiers`, `/tiers/<slug>`, and `/interest`.
+- Seeded Bronze / Silver / Gold / Platinum catalogue: minimums, benefits, access, fees, hold periods, and eligibility notes.
+- Side-by-side comparison table plus stacked cards; amount highlighter for an illustrative fit.
+- Mocked express-interest form (in-memory inbox, no payments).
+- JSON catalogue at `/api/tiers`. `/portal` and `/invest` redirect to `/tiers`.
+
+### Fixed
+- `pyproject.toml` build backend (`setuptools.build_meta`) so `pip install -e ".[dev]"` succeeds.
+
 ## [0.2.0] - 2026-08-05
 
 ### Added

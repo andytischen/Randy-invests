@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Investment tiers · Randy Invests{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <p class="eyebrow">Retail comparison</p>
+    <h1>Choose a tier the way you would compare share classes.</h1>
+    <p class="lede">
+      Four illustrative programs. Same research desk, different minimums, access, and service.
+      Figures are demonstration data — not an offer of securities.
+    </p>
+
+    <form class="fit-form" method="get" action="{{ url_for('tiers_index') }}" id="fit-form">
+      <label for="amount">Illustrative commitment</label>
+      <div class="fit-row">
+        <span class="fit-prefix" aria-hidden="true">$</span>
+        <input
+          id="amount"
+          name="amount"
+          type="text"
+          inputmode="decimal"
+          placeholder="25,000"
+          value="{% if parsed_amount is not none %}{{ '%.0f'|format(parsed_amount) }}{% endif %}"
+          autocomplete="off"
+        />
+        <button class="btn btn-primary" type="submit">Show my illustrative fit</button>
+      </div>
+      <p class="fit-help" id="fit-status">
+        {% if recommended and parsed_amount is not none %}
+          A ${{ '{:,.0f}'.format(parsed_amount) }} commitment illustratively maps to
+          <strong>{{ recommended.name }}</strong>
+          (minimum {{ recommended.format_minimum() }}). This is not advice.
+        {% else %}
+          We highlight the highest tier whose minimum you meet. Amounts below Bronze still point to Bronze as the entry path.
+        {% endif %}
+      </p>
+    </form>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="cards-heading">
+  <div class="container">
+    <div class="section-head tight">
+      <h2 id="cards-heading">Access tiers</h2>
+      <p>Stacked on a phone, four-across on a wide desk. Gold is marked as the most-reviewed path.</p>
+    </div>
+    <div class="tier-grid">
+      {% for tier in tiers %}
+      <article
+        class="tier-card metal-{{ tier.metal }}{% if tier.featured %} is-featured{% endif %}{% if highlighted and highlighted.slug == tier.slug %} is-highlighted{% endif %}"
+        data-tier="{{ tier.slug }}"
+        data-minimum="{{ tier.minimum_usd }}"
+      >
+        {% if tier.featured %}<p class="ribbon">Most reviewed</p>{% endif %}
+        <header>
+          <p class="tier-metal">{{ tier.name }}</p>
+          <h3>{{ tier.tagline }}</h3>
+          <p class="tier-min"><span>{{ tier.format_minimum() }}</span> minimum</p>
+          <p class="tier-audience">{{ tier.audience }}</p>
+        </header>
+        <dl class="tier-facts">
+          <div>
+            <dt>Annual fee</dt>
+            <dd>{{ tier.format_fee() }}</dd>
+          </div>
+          <div>
+            <dt>Hold period</dt>
+            <dd>{{ tier.hold_period }}</dd>
+          </div>
+        </dl>
+        <p class="tier-label">What you get</p>
+        <ul>
+          {% for item in tier.benefits %}
+          <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+        <p class="tier-label">Access</p>
+        <ul class="tight-list">
+          {% for item in tier.access %}
+          <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+        <p class="eligibility"><strong>Eligibility.</strong> {{ tier.eligibility }}</p>
+        <p class="liquidity">{{ tier.liquidity_note }}</p>
+        <div class="card-actions">
+          <a class="btn btn-primary" href="{{ url_for('interest_get', tier=tier.slug) }}">{{ tier.cta_label }}</a>
+          <a class="btn btn-ghost" href="{{ url_for('tier_detail', slug=tier.slug) }}">Full notes</a>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section section-muted" aria-labelledby="table-heading">
+  <div class="container">
+    <div class="section-head tight">
+      <h2 id="table-heading">Side-by-side comparison</h2>
+      <p>On a narrow screen, swipe the table. The first column stays put.</p>
+    </div>
+    <div class="table-scroll" tabindex="0">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th scope="col">Feature</th>
+            {% for tier in tiers %}
+            <th
+              scope="col"
+              class="metal-{{ tier.metal }}{% if highlighted and highlighted.slug == tier.slug %} is-highlighted{% endif %}"
+            >
+              {{ tier.name }}
+            </th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+          <tr>
+            <th scope="row">
+              {{ row.label }}
+              <span class="th-help">{{ row.help }}</span>
+            </th>
+            {% for tier in tiers %}
+            <td class="{% if highlighted and highlighted.slug == tier.slug %}is-highlighted{% endif %}">
+              {{ row.values[tier.slug] }}
+            </td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+          <tr class="cta-row">
+            <th scope="row">Next step</th>
+            {% for tier in tiers %}
+            <td class="{% if highlighted and highlighted.slug == tier.slug %}is-highlighted{% endif %}">
+              <a class="btn btn-small" href="{{ url_for('interest_get', tier=tier.slug) }}">Get started</a>
+            </td>
+            {% endfor %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

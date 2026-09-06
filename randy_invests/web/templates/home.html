@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Randy Invests · Retail investor portal{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <p class="eyebrow">Retail investor portal</p>
+      <h1>Investment access, stated in plain tiers.</h1>
+      <p class="lede">
+        Compare Bronze, Silver, Gold, and Platinum — minimums, what you actually get,
+        program fees, and hold windows — before you raise a hand. This is a public
+        demonstration desk. No login is required.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="{{ url_for('tiers_index') }}">Compare investment tiers</a>
+        <a class="btn btn-ghost" href="{{ url_for('interest_get') }}">Express interest</a>
+      </div>
+      <ul class="trust-row">
+        <li>Illustrative figures</li>
+        <li>Retail-sized minimums</li>
+        <li>No payment in this demo</li>
+      </ul>
+    </div>
+    <aside class="hero-card" aria-label="Tier snapshot">
+      <p class="hero-card-kicker">Four access levels</p>
+      <ol class="hero-tier-list">
+        {% for tier in tiers %}
+        <li>
+          <a href="{{ url_for('tier_detail', slug=tier.slug) }}">
+            <span class="metal-dot metal-{{ tier.metal }}"></span>
+            <span>
+              <strong>{{ tier.name }}</strong>
+              <em>{{ tier.format_minimum() }} minimum</em>
+            </span>
+            {% if tier.featured %}<span class="chip">Most reviewed</span>{% endif %}
+          </a>
+        </li>
+        {% endfor %}
+      </ol>
+    </aside>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <h2>How the desk works</h2>
+      <p>Three steps. Suitability still comes before any real commitment.</p>
+    </div>
+    <div class="steps">
+      <article>
+        <span class="step-num">01</span>
+        <h3>Compare in one view</h3>
+        <p>Cards and a side-by-side table so a retail investor can see minimums, fees, holds, and access without a pitch deck.</p>
+      </article>
+      <article>
+        <span class="step-num">02</span>
+        <h3>Check an illustrative fit</h3>
+        <p>Enter a dollar amount on the tiers page. We highlight the highest program whose minimum you meet. It is not a recommendation.</p>
+      </article>
+      <article>
+        <span class="step-num">03</span>
+        <h3>Express interest</h3>
+        <p>Send a name, email, and intended amount. Payments are mocked. A live firm would follow with KYC and a written agreement.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section section-muted">
+  <div class="container">
+    <div class="section-head">
+      <h2>Built next to the research engine</h2>
+      <p>
+        Randy Invests already ships a CLI that fetches market data, scores technical patterns,
+        and trains an ML ensemble. This portal is the retail front door — access tiers, not a
+        replacement for the model output.
+      </p>
+    </div>
+    <div class="split-note">
+      <div>
+        <h3>Signed-in personalization (later)</h3>
+        <p>
+          There is no account system in this release. When auth lands, a retail user should see
+          the tier they already hold, a path to upgrade, and statements against the same
+          catalogue. Until then the public <a href="{{ url_for('tiers_index') }}">/tiers</a>
+          page plus an optional amount highlighter is the whole experience.
+        </p>
+      </div>
+      <a class="btn btn-primary" href="{{ url_for('tiers_index') }}">Open the comparison</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

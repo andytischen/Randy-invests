@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Interest received · Randy Invests{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="container narrow">
+    <p class="eyebrow">Demonstration inbox</p>
+    <h1>{% if investor_name %}Thank you, {{ investor_name }}.{% else %}Interest received.{% endif %}</h1>
+    <p class="lede">
+      {% if tier %}
+        We logged an illustrative request for <strong>{{ tier.name }}</strong>
+        ({{ tier.format_minimum() }} minimum).
+      {% else %}
+        We logged your illustrative request.
+      {% endif %}
+      Nothing was charged. No account was created.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="{{ url_for('tiers_index') }}">Back to tiers</a>
+      <a class="btn btn-ghost" href="{{ url_for('home') }}">Portal home</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

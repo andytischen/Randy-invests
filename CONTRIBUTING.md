@@ -47,10 +47,15 @@ randy_invests/
 ├── predictor.py           # ML ensemble + PipelineConfig
 ├── recommender.py         # Buy/sell/hold recommendation engine
 ├── main.py                # CLI entry point (run_pipeline + analyse)
+├── web/                   # Retail investor portal
 └── tests/
     ├── test_data_fetcher.py
     ├── test_technical_analysis.py
     ├── test_predictor.py
     ├── test_recommender.py
-    └── test_main.py
+    ├── test_main.py
+    ├── test_tiers.py
+    └── test_web.py
 ```
+
+The portal is started with `python -m randy_invests.web` and is served at `/tiers`.

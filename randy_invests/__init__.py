@@ -1,1 +1,1 @@
-"""Randy-Invests: Comprehensive Stock Market Predictor."""
+"""Randy-Invests: stock market predictor and retail investor portal."""

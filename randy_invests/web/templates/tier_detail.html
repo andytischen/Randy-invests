@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ tier.name }} · Randy Invests{% endblock %}
+{% block content %}
+<article class="page-hero">
+  <div class="container narrow">
+    <p class="eyebrow"><a href="{{ url_for('tiers_index') }}">All tiers</a> / {{ tier.name }}</p>
+    <h1>{{ tier.name }} access</h1>
+    <p class="lede">{{ tier.tagline }}</p>
+    <p class="tier-min detail-min"><span>{{ tier.format_minimum() }}</span> minimum · {{ tier.format_fee() }} annual fee · {{ tier.hold_period }}</p>
+  </div>
+</article>
+
+<section class="section">
+  <div class="container detail-grid">
+    <div>
+      <h2>Benefits</h2>
+      <ul class="detail-list">
+        {% for item in tier.benefits %}<li>{{ item }}</li>{% endfor %}
+      </ul>
+      <h2>Access</h2>
+      <ul class="detail-list">
+        {% for item in tier.access %}<li>{{ item }}</li>{% endfor %}
+      </ul>
+    </div>
+    <aside class="detail-aside">
+      <h2>Retail notes</h2>
+      <p><strong>Who it’s for.</strong> {{ tier.audience }}</p>
+      <p><strong>Eligibility.</strong> {{ tier.eligibility }}</p>
+      <p><strong>Liquidity.</strong> {{ tier.liquidity_note }}</p>
+      <a class="btn btn-primary" href="{{ url_for('interest_get', tier=tier.slug) }}">{{ tier.cta_label }}</a>
+      <p class="fineprint">Expressing interest does not open an account and does not move money.</p>
+    </aside>
+  </div>
+</section>
+{% endblock %}
