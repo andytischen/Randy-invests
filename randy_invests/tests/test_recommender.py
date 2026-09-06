@@ -9,7 +9,6 @@ from randy_invests.predictor import StockPredictor
 from randy_invests.recommender import Recommendation, generate_recommendation
 from randy_invests.technical_analysis import add_indicators, identify_patterns
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

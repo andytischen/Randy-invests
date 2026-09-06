@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 import joblib
 import numpy as np
@@ -351,7 +350,7 @@ class StockPredictor:
         logger.info("Predictor saved to %s", path)
 
     @classmethod
-    def load(cls, path: str | Path) -> "StockPredictor":
+    def load(cls, path: str | Path) -> StockPredictor:
         """Load a previously saved predictor from disk.
 
         Args:
