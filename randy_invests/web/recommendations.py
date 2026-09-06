@@ -150,13 +150,13 @@ def _key_points(result: dict, horizon_days: int) -> tuple[str, ...]:
 def _plain_summary(ticker: str, tone: str, strength_l: str, confidence_l: str, horizon: int) -> str:
     if tone == "positive":
         return (
-            f"Randy Invests' model leans higher on {ticker} over roughly the next "
+            f"Randy Invests' overall signal leans higher on {ticker} over roughly the next "
             f"{horizon} trading days ({confidence_l} confidence). Read for retail, it "
             f"looks like a {strength_l} buy candidate — an idea to research, not a promise."
         )
     if tone == "negative":
         return (
-            f"The model leans lower on {ticker} over roughly the next {horizon} trading "
+            f"The overall signal leans lower on {ticker} over roughly the next {horizon} trading "
             f"days ({confidence_l} confidence). Read for retail, it looks like a "
             f"{strength_l} case to consider trimming or standing aside — not a directive to sell."
         )
@@ -271,6 +271,19 @@ def get_retail_recommendations(
     return out
 
 
+def _is_valid_ticker(token: str) -> bool:
+    """Accept plain symbols plus single share-class suffixes (e.g. BRK-B, BF.B)."""
+    base, sep, suffix = token.partition("-") if "-" in token else token.partition(".")
+    if sep:
+        return (
+            1 <= len(base) <= 6
+            and base.isalpha()
+            and 1 <= len(suffix) <= 2
+            and suffix.isalpha()
+        )
+    return 1 <= len(token) <= 6 and token.isalpha()
+
+
 def normalize_tickers(raw: str, *, limit: int = 6) -> list[str]:
     """Parse a comma/space separated ticker string into a clean, bounded list."""
     if not raw:
@@ -278,7 +291,7 @@ def normalize_tickers(raw: str, *, limit: int = 6) -> list[str]:
     seen: list[str] = []
     for chunk in raw.replace(",", " ").split():
         token = chunk.strip().upper()
-        if token and token.isalpha() and 1 <= len(token) <= 6 and token not in seen:
+        if token and _is_valid_ticker(token) and token not in seen:
             seen.append(token)
         if len(seen) >= limit:
             break
