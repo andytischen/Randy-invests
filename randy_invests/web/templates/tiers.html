@@ -122,7 +122,7 @@
             </th>
             {% for tier in tiers %}
             <td class="{% if highlighted and highlighted.slug == tier.slug %}is-highlighted{% endif %}">
-              {{ row.values[tier.slug] }}
+              {{ row['values'][tier.slug] }}
             </td>
             {% endfor %}
           </tr>

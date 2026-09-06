@@ -35,6 +35,9 @@ def test_home_and_tiers_render(client):
     assert "Side-by-side comparison" in page
     assert "Express interest" in page
     assert "illustrative" in page.lower()
+    assert "Educational recaps" in page
+    assert "Named liaison" in page
+    assert "Dedicated analyst" in page
 
 
 def test_alias_routes_redirect_to_tiers(client):
