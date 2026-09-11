@@ -22,15 +22,8 @@ struct HoldingDetailView: View {
 private struct HoldingDetailContent: View {
     let holding: Holding
 
-    /// Resolves the latest holding from the view model so the detail stays in
-    /// sync when the position is updated (e.g. merged from Search) while open.
-    private var currentHolding: Holding {
-        viewModel.holdings.first(where: { $0.id == holding.id }) ?? holding
-    }
-
     var body: some View {
-        let holding = currentHolding
-        return List {
+        List {
             Section("Position") {
                 DetailRow(label: "Shares", value: String(format: "%.4f", holding.shares))
                 DetailRow(label: "Current Price", value: holding.currentPrice.formatted(.currency(code: "USD")))
