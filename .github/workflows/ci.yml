@@ -64,4 +64,5 @@ jobs:
         run: |
           /tmp/XcodeGen/.build/release/xcodegen generate --no-env
           grep -q 'productType = "com.apple.product-type.application"' RandyInvests.xcodeproj/project.pbxproj
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git diff --exit-code -- App/Resources/Info.plist
