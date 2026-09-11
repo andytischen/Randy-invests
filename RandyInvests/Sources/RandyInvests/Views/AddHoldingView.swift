@@ -59,25 +59,25 @@ struct AddHoldingView: View {
     private var isFormValid: Bool {
         !symbol.trimmingCharacters(in: .whitespaces).isEmpty &&
         !name.trimmingCharacters(in: .whitespaces).isEmpty &&
-        Double(sharesText) != nil &&
-        Double(costBasisText) != nil &&
-        Double(currentPriceText) != nil
+        sharesText.parsedDouble() != nil &&
+        costBasisText.parsedDouble() != nil &&
+        currentPriceText.parsedDouble() != nil
     }
 
     // MARK: - Actions
 
     private func addHolding() {
-        guard let shares = Double(sharesText), shares > 0 else {
+        guard let shares = sharesText.parsedDouble(), shares > 0 else {
             validationMessage = "Shares must be a positive number."
             showValidationError = true
             return
         }
-        guard let costBasis = Double(costBasisText), costBasis > 0 else {
+        guard let costBasis = costBasisText.parsedDouble(), costBasis > 0 else {
             validationMessage = "Cost basis must be a positive number."
             showValidationError = true
             return
         }
-        guard let currentPrice = Double(currentPriceText), currentPrice > 0 else {
+        guard let currentPrice = currentPriceText.parsedDouble(), currentPrice > 0 else {
             validationMessage = "Current price must be a positive number."
             showValidationError = true
             return
