@@ -39,3 +39,29 @@ jobs:
         run: pip install -e ".[dev]" pyarrow
       - name: Run pytest
         run: pytest randy_invests/tests/ -v --tb=short
+
+  swift:
+    name: Swift (RandyInvestsKit + XcodeGen)
+    runs-on: ubuntu-latest
+    container: swift:6.0
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: RandyInvests
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run swift test
+        run: swift test
+      - name: Install XcodeGen
+        run: |
+          git clone --depth 1 --branch 2.44.1 https://github.com/yonaskolb/XcodeGen.git /tmp/XcodeGen
+          swift build -c release --package-path /tmp/XcodeGen
+      - name: Generate Xcode project
+        env:
+          USER: root
+          LOGNAME: root
+        run: |
+          /tmp/XcodeGen/.build/release/xcodegen generate --no-env
+          grep -q 'productType = "com.apple.product-type.application"' RandyInvests.xcodeproj/project.pbxproj
+          git diff --exit-code -- App/Resources/Info.plist
