@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Advertise · Randy Invests{% endblock %}
+{% block og_title %}Advertise and market Randy Invests{% endblock %}
+{% block meta_description %}Ways to market Randy Invests to retail investors — YouTube, clubs, newsletters, and ready-to-run ad copy. Illustrative, not an offer.{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <p class="eyebrow">Marketing desk</p>
+    <h1>Ways to market the desk without sounding like a tip sheet.</h1>
+    <p class="lede">
+      Separate pages, a recognizable face, and copy that sends people to
+      <a href="{{ url_for('tiers_index') }}">/tiers</a>. No guaranteed returns. No “lock it in.”
+      Partners get a media kit and a mocked intake form.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head tight">
+      <h2>Where retail attention actually is</h2>
+      <p>Five channels that fit a middle-class investment-community brand.</p>
+    </div>
+    <div class="steps market-grid">
+      {% for item in channels %}
+      <article>
+        <h3>{{ item.name }}</h3>
+        <p><strong>Audience.</strong> {{ item.audience }}</p>
+        <p>{{ item.why_it_works }}</p>
+        <p class="fineprint"><strong>First move.</strong> {{ item.first_move }}</p>
+        <a class="btn btn-ghost" href="{{ url_for(item.href) }}">{{ item.href_label }}</a>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section section-muted">
+  <div class="container">
+    <div class="section-head tight">
+      <h2>Ready-to-run snippets</h2>
+      <p>Use as-is. Every destination is a public page on this portal.</p>
+    </div>
+    <div class="snippet-grid">
+      {% for snippet in snippets %}
+      <article class="snippet-card">
+        <p class="tier-label">{{ snippet.surface }}</p>
+        <h3>{{ snippet.headline }}</h3>
+        <p>{{ snippet.body }}</p>
+        <p class="fineprint">Destination: {{ snippet.destination }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head tight">
+      <h2>Tracked share links</h2>
+      <p>Same comparison page, different <code>utm_source</code> so you can see which conversation worked.</p>
+    </div>
+    <ul class="share-list">
+      {% for link in share_links %}
+      <li>
+        <span>{{ link.label }}</span>
+        <code class="share-url" data-copy>{{ request.host_url.rstrip('/') }}{{ link.path }}</code>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+
+<section class="section section-muted">
+  <div class="container detail-grid">
+    <div>
+      <h2>Media kit</h2>
+      <p>
+        Channel icon (Randy) and banner art are the advertising system. Use the portrait
+        as a circular avatar. Do not add performance numbers to the artwork.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="{{ url_for('static', filename='img/randy_invests_icon.png') }}" download>Download icon</a>
+        <a class="btn btn-ghost" href="{{ url_for('static', filename='img/randy_invests_channel_banner.png') }}" download>Download banner</a>
+        <a class="btn btn-ghost" href="{{ url_for('about') }}">Randy’s positioning</a>
+      </div>
+    </div>
+    <aside class="detail-aside">
+      <h2>Partner intake</h2>
+      <p>Clubs, newsletters, and channels. Demonstration inbox only.</p>
+      {% if errors %}
+      <div class="flash flash-error" role="alert">
+        <ul>
+          {% for error in errors %}<li>{{ error }}</li>{% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      <form class="interest-form compact-form" method="post" action="{{ url_for('advertise_post') }}" novalidate>
+        <label>Contact name
+          <input type="text" name="name" required minlength="2" maxlength="80" value="{{ form.get('name', '') }}" />
+        </label>
+        <label>Email
+          <input type="email" name="email" required value="{{ form.get('email', '') }}" />
+        </label>
+        <label>Club, channel, or organization
+          <input type="text" name="organization" required value="{{ form.get('organization', '') }}" />
+        </label>
+        <label>How you reach retail investors
+          <select name="channel" required>
+            <option value="">Select a channel</option>
+            <option value="youtube" {% if form.get('channel') == 'youtube' %}selected{% endif %}>YouTube</option>
+            <option value="newsletter" {% if form.get('channel') == 'newsletter' %}selected{% endif %}>Newsletter</option>
+            <option value="investment-club" {% if form.get('channel') == 'investment-club' %}selected{% endif %}>Investment club</option>
+            <option value="podcast" {% if form.get('channel') == 'podcast' %}selected{% endif %}>Podcast</option>
+            <option value="employer-education" {% if form.get('channel') == 'employer-education' %}selected{% endif %}>Employer education</option>
+            <option value="other" {% if form.get('channel') == 'other' %}selected{% endif %}>Other</option>
+          </select>
+        </label>
+        <label>Notes
+          <textarea name="message" rows="3" maxlength="1000">{{ form.get('message', '') }}</textarea>
+        </label>
+        <button class="btn btn-primary" type="submit">Send partner note</button>
+      </form>
+    </aside>
+  </div>
+</section>
+{% endblock %}

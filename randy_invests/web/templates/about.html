@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Meet Randy · Randy Invests{% endblock %}
+{% block og_title %}Meet Randy, the face of Randy Invests{% endblock %}
+{% block meta_description %}Randy is a middle-class member of the investment community — the neighborly face of the Randy Invests research desk and YouTube channel.{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="container about-hero">
+    <img
+      class="randy-portrait"
+      src="{{ url_for('static', filename='img/randy_invests_icon.png') }}"
+      alt="Randy, the Randy Invests channel icon — a middle-class member of the investment community"
+      width="280"
+      height="280"
+    />
+    <div>
+      <p class="eyebrow">The face of the desk</p>
+      <h1>Meet Randy.</h1>
+      <p class="lede">
+        Randy is a middle-class member of the investment community — the person who stays
+        after a PTA meeting to compare 529s, who keeps a watchlist on a yellow pad, and who
+        would rather understand a fee than chase a hot tip. He is not a hedge-fund character
+        and not a luxury influencer. He is the neighbor you would actually ask.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="{{ url_for('channel') }}">Watch the channel</a>
+        <a class="btn btn-ghost" href="{{ url_for('tiers_index') }}">Compare tiers</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container detail-grid">
+    <div>
+      <h2>Why he looks like this</h2>
+      <p>
+        Retail investors are not a costume. The Randy Invests icon is cast as an everyday
+        club member on purpose: unstructured cardigan, kitchen-table research, no
+        supercar, no trading-floor swagger. The brand should feel like someone you already
+        sit next to at an investment club — competent, warm, and unwilling to oversell.
+      </p>
+      <h2>What he will not do on camera</h2>
+      <ul class="detail-list">
+        <li>Promise returns or “lock in” a trade</li>
+        <li>Treat a model label as a crystal ball</li>
+        <li>Skip the hold-period and fee conversation</li>
+        <li>Pretend this demo desk is a live offering of securities</li>
+      </ul>
+    </div>
+    <aside class="detail-aside">
+      <h2>Use the icon</h2>
+      <p>The same portrait is the YouTube avatar, the site favicon, and the header mark.</p>
+      <a class="btn btn-primary" href="{{ url_for('static', filename='img/randy_invests_icon.png') }}" download>Download channel icon</a>
+      <a class="btn btn-ghost" href="{{ url_for('advertise_get') }}">Media &amp; ad kit</a>
+    </aside>
+  </div>
+</section>
+{% endblock %}
