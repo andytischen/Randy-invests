@@ -1,4 +1,5 @@
 import SwiftUI
+import RandyInvestsKit
 
 @main
 struct RandyInvestsApp: App {

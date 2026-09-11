@@ -1,4 +1,5 @@
 import SwiftUI
+import RandyInvestsKit
 
 struct PortfolioView: View {
     @EnvironmentObject var viewModel: PortfolioViewModel
@@ -83,7 +84,7 @@ struct PortfolioView: View {
     private var holdingsSection: some View {
         Section {
             ForEach(viewModel.holdings) { holding in
-                NavigationLink(destination: HoldingDetailView(holding: holding)) {
+                NavigationLink(destination: HoldingDetailView(holdingID: holding.id)) {
                     HoldingRowView(holding: holding)
                 }
             }
@@ -98,5 +99,5 @@ struct PortfolioView: View {
 
 #Preview {
     PortfolioView()
-        .environmentObject(PortfolioViewModel())
+        .environmentObject(PortfolioViewModel.preview())
 }

@@ -1,4 +1,5 @@
 import SwiftUI
+import RandyInvestsKit
 
 struct SearchView: View {
     @EnvironmentObject var viewModel: PortfolioViewModel
@@ -93,5 +94,5 @@ private struct SearchResultRow: View {
 
 #Preview {
     SearchView()
-        .environmentObject(PortfolioViewModel())
+        .environmentObject(PortfolioViewModel.preview())
 }

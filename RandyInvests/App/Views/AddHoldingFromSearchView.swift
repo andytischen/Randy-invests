@@ -1,4 +1,5 @@
 import SwiftUI
+import RandyInvestsKit
 
 /// Sheet presented when adding a holding from a search result.
 struct AddHoldingFromSearchView: View {
@@ -63,23 +64,23 @@ struct AddHoldingFromSearchView: View {
     }
 
     private var isFormValid: Bool {
-        Double(sharesText) != nil &&
-        Double(costBasisText) != nil &&
-        Double(currentPriceText) != nil
+        DecimalInput.parsePositive(sharesText) != nil &&
+        DecimalInput.parsePositive(costBasisText) != nil &&
+        DecimalInput.parsePositive(currentPriceText) != nil
     }
 
     private func addHolding() {
-        guard let shares = Double(sharesText), shares > 0 else {
+        guard let shares = DecimalInput.parsePositive(sharesText) else {
             validationMessage = "Shares must be a positive number."
             showValidationError = true
             return
         }
-        guard let costBasis = Double(costBasisText), costBasis > 0 else {
+        guard let costBasis = DecimalInput.parsePositive(costBasisText) else {
             validationMessage = "Cost basis must be a positive number."
             showValidationError = true
             return
         }
-        guard let currentPrice = Double(currentPriceText), currentPrice > 0 else {
+        guard let currentPrice = DecimalInput.parsePositive(currentPriceText) else {
             validationMessage = "Current price must be a positive number."
             showValidationError = true
             return
@@ -101,5 +102,5 @@ struct AddHoldingFromSearchView: View {
     AddHoldingFromSearchView(
         searchResult: StockSearchResult(symbol: "AAPL", name: "Apple Inc.", exchange: "NASDAQ")
     )
-    .environmentObject(PortfolioViewModel())
+    .environmentObject(PortfolioViewModel.preview())
 }

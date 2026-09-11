@@ -1,4 +1,5 @@
 import SwiftUI
+import RandyInvestsKit
 
 struct HoldingRowView: View {
     let holding: Holding

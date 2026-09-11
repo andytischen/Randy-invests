@@ -1,7 +1,25 @@
 import SwiftUI
+import RandyInvestsKit
 
 struct HoldingDetailView: View {
     @EnvironmentObject var viewModel: PortfolioViewModel
+    let holdingID: Holding.ID
+
+    var body: some View {
+        if let holding = viewModel.holding(id: holdingID) {
+            HoldingDetailContent(holding: holding)
+        } else {
+            ContentUnavailableView(
+                "Holding Removed",
+                systemImage: "trash",
+                description: Text("This position is no longer in your portfolio.")
+            )
+            .navigationTitle("Holding")
+        }
+    }
+}
+
+private struct HoldingDetailContent: View {
     let holding: Holding
 
     var body: some View {
@@ -51,14 +69,15 @@ private struct DetailRow: View {
 }
 
 #Preview {
-    NavigationStack {
-        HoldingDetailView(holding: Holding(
-            symbol: "AAPL",
-            name: "Apple Inc.",
-            shares: 10,
-            averageCostBasis: 150,
-            currentPrice: 175
-        ))
-        .environmentObject(PortfolioViewModel())
+    let holding = Holding(
+        symbol: "AAPL",
+        name: "Apple Inc.",
+        shares: 10,
+        averageCostBasis: 150,
+        currentPrice: 175
+    )
+    return NavigationStack {
+        HoldingDetailView(holdingID: holding.id)
+            .environmentObject(PortfolioViewModel.preview(holdings: [holding]))
     }
 }

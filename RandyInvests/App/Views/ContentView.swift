@@ -1,4 +1,5 @@
 import SwiftUI
+import RandyInvestsKit
 
 struct ContentView: View {
     var body: some View {
@@ -18,5 +19,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .environmentObject(PortfolioViewModel())
+        .environmentObject(PortfolioViewModel.preview())
 }
